@@ -16,6 +16,9 @@
     "deploy": "gh-pages -d dist",
     "encode-key": "tsx src/scripts/encodeKey.ts",
     "gen:key": "tsx src/scripts/genKey.ts",
+    "format:key": "tsx src/scripts/formatKey.ts",
+    "genkey": "tsx src/scripts/formatKey.ts",
+    "share-link": "tsx src/scripts/generate-share-link.ts",
     "generate-icons": "tsx scripts/generateIcons.ts",
     "clean": "powershell -Command \"Get-ChildItem -Path src -Recurse -Filter *.js | Where-Object { (Test-Path ($_.FullName -replace '\\.js$','.ts')) -or (Test-Path ($_.FullName -replace '\\.js$','.tsx')) } | Remove-Item\""
   },

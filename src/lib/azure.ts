@@ -32,8 +32,22 @@ export async function analyzeImage(
                 url: `data:image/jpeg;base64,${imageBase64}`
             }
         }
-    ]; const response = await fetch(
-        `${config.endpoint}/openai/deployments/gpt-4/chat/completions?api-version=2024-10-21`,
+    ];
+
+    // Construct the API endpoint URL
+    // This handles both formats of the endpoint
+    // 1. Full URL with deployment name and API version
+    // 2. Base URL that needs the deployment path appended
+    let apiUrl = config.endpoint;
+    if (!apiUrl.includes('/deployments/')) {
+        // If it's a base URL, append the deployment path
+        apiUrl = `${apiUrl}/openai/deployments/gpt-4/chat/completions?api-version=2024-10-21`;
+    }
+
+    console.log("Using API URL:", apiUrl);
+    
+    const response = await fetch(
+        apiUrl,
         {
             method: "POST",
             headers: {
@@ -130,18 +144,21 @@ export async function analyzeImage(
     }
 }
 
-export async function decodeConnectionKey(base64Key: string): Promise<AzureConfig> {
+export async function decodeConnectionKey(connectionString: string): Promise<AzureConfig> {
     try {
-        const jsonStr = atob(base64Key);
+        // Parse the base64-encoded JSON string
+        const jsonStr = atob(connectionString);
         const config = JSON.parse(jsonStr);
-
+        
         if (!config.endpoint || !config.apiKey) {
-            throw new Error("Invalid connection key format");
+            throw new Error("Invalid connection key format: missing endpoint or apiKey");
         }
-
+        
+        console.log("Decoded connection key successfully");
         return config;
     } catch (error) {
-        throw new Error("Failed to decode connection key");
+        console.error("Failed to decode connection key:", error);
+        throw new Error("Failed to decode connection key. Please check the format.");
     }
 }
 

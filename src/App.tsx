@@ -5,16 +5,21 @@ import { ConnectionSetup } from './components/ConnectionSetup';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { AzureProvider } from './context/AzureContext';
 import { SeriesDraftProvider } from './context/SeriesDraftContext';
-import { getConnectionKey, isPrivateMode } from './lib/storage';
+import { getConnectionKey, isPrivateMode, saveConnectionKey } from './lib/storage';
+
+// This section has been moved to direct inline code in the useEffect hook
 
 // Always use HashRouter for GitHub Pages deployment 
 // to ensure basePath is handled correctly
 const Router = HashRouter;
 
 function App() {
-  const [hasKey, setHasKey] = useState<boolean>();
+  // Use null as initial state to clearly distinguish between unchecked and false
+  const [hasKey, setHasKey] = useState<boolean | null>(null);
   const [isPrivate, setIsPrivate] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  
+  console.log("App render state:", { hasKey, isPrivate, isLoading });
 
   useEffect(() => {
     async function init() {
@@ -23,9 +28,50 @@ function App() {
         setIsPrivate(inPrivateMode);
 
         if (!inPrivateMode) {
-          const key = await getConnectionKey();
-          setHasKey(!!key);
+          // Check if there's a key parameter in the URL
+          const searchParams = new URLSearchParams(window.location.search);
+          const hashParts = window.location.hash.split('?');
+          const hashParams = hashParts.length > 1 ? new URLSearchParams(hashParts[1]) : new URLSearchParams();
+          const keyParam = searchParams.get('key') || hashParams.get('key');
+          
+          let hasValidKey = false;
+
+          // First check if a valid key was provided in the URL
+          if (keyParam) {
+            console.log("Key parameter found in URL");
+            try {
+              // Try to decode the key as Base64 JSON
+              const jsonStr = atob(keyParam);
+              const config = JSON.parse(jsonStr);
+              
+              if (config.endpoint && config.apiKey) {
+                console.log("URL key is valid, saving to storage");
+                await saveConnectionKey(keyParam);
+                hasValidKey = true;
+              } else {
+                throw new Error("Invalid key structure");
+              }
+            } catch (keyError) {
+              console.error("Invalid key format in URL parameter:", keyError);
+            }
+          }
+
+          // If no valid key in URL, check storage
+          if (!hasValidKey) {
+            const storedKey = await getConnectionKey();
+            console.log("Connection key found in storage:", !!storedKey);
+            hasValidKey = !!storedKey;
+          }
+          
+          setHasKey(hasValidKey);
+        } else {
+          // In private mode, we know there's no key
+          setHasKey(false);
         }
+      } catch (error) {
+        console.error("Error checking for connection key:", error);
+        // If there's an error checking for the key, assume there is none
+        setHasKey(false);
       } finally {
         setIsLoading(false);
       }
@@ -55,7 +101,7 @@ function App() {
     );
   }
 
-  if (!hasKey) {
+  if (hasKey === false) {
     return <ConnectionSetup onSetup={() => setHasKey(true)} />;
   }
 
