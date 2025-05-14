@@ -1,0 +1,19 @@
+{
+    "extends": "./tsconfig.node.json",
+    "compilerOptions": {
+        "composite": true,
+        "module": "ESNext",
+        "types": [
+            "node"
+        ],
+        "moduleResolution": "bundler",
+        "allowImportingTsExtensions": true,
+        "noEmit": true,
+        "rootDir": "./src"
+    },
+    "include": [
+        "src/scripts/**/*",
+        "src/lib/**/*",
+        "src/types/**/*"
+    ]
+}

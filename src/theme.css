@@ -1,0 +1,24 @@
+@theme {
+    :root {
+        --primary-color: #3b82f6;
+        --secondary-color: #64748b;
+        --background-color: #ffffff;
+        --text-color: #1f2937;
+    }
+}
+
+@layer base {
+    :root {
+        @apply bg-background text-text;
+    }
+}
+
+@layer components {
+    .btn-primary {
+        @apply bg-primary text-white px-4 py-2 rounded hover:bg-opacity-90;
+    }
+
+    .card {
+        @apply bg-white rounded-lg shadow-md p-4;
+    }
+}
