@@ -1,0 +1,24 @@
+{
+    "name": "Ursa Minor Ascension",
+    "short_name": "Ascension",
+    "description": "Turn textbook pages into quizzes and flashcards",
+    "start_url": "./",
+    "scope": "./",
+    "display": "standalone",
+    "theme_color": "#000000",
+    "background_color": "#ffffff",
+    "icons": [
+        {
+            "src": "vite.svg",
+            "sizes": "192x192",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "vite.svg",
+            "sizes": "512x512",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ]
+}
