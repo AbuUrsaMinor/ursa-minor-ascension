@@ -14,8 +14,17 @@ export function Camera({ onCapture, onError }: CameraProps) {
 
         async function setupCamera() {
             try {
+                // Check if mediaDevices is available
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error('Camera access is not supported in this browser. Please try a different browser or device.');
+                }
+
                 stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'environment' }
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    }
                 });
 
                 if (videoRef.current) {
@@ -23,7 +32,24 @@ export function Camera({ onCapture, onError }: CameraProps) {
                     setIsStreaming(true);
                 }
             } catch (err) {
-                onError(err instanceof Error ? err : new Error('Failed to access camera'));
+                let errorMessage = 'Failed to access camera';
+
+                // More detailed error messages
+                if (err instanceof Error) {
+                    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                        errorMessage = 'Camera access denied. Please allow camera access in your browser settings.';
+                    } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+                        errorMessage = 'No camera found. Please ensure your device has a camera.';
+                    } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+                        errorMessage = 'Camera is already in use by another application.';
+                    } else if (err.name === 'OverconstrainedError') {
+                        errorMessage = 'Camera constraints not satisfied. Your device may not support the requested resolution.';
+                    } else if (err.message) {
+                        errorMessage = err.message;
+                    }
+                }
+
+                onError(new Error(errorMessage));
             }
         }
 

@@ -46,19 +46,88 @@ export async function analyzeImage(
                 max_tokens: 16384,
             }),
         }
-    );
+    ); if (!response.ok) {
+        let errorDetail = '';
+        let errorMessage = `Azure API error: ${response.status} ${response.statusText}`;
 
-    if (!response.ok) {
-        throw new Error(`Azure API error: ${response.status} ${response.statusText}`);
-    } const result = await response.json() as any;
-    const content = result.choices[0].message.content;
+        try {
+            const errorJson = await response.json();
+            errorDetail = errorJson.error?.message || errorJson.message || '';
 
-    // Parse the content into text and metadata
-    // This is a simple implementation - you might want to add more structure
-    return {
-        text: content,
-        metadata: {} // Add metadata parsing logic
-    };
+            if (errorDetail) {
+                errorMessage += `. ${errorDetail}`;
+            }
+
+            // Add more specific error messages based on status codes
+            if (response.status === 401) {
+                errorMessage += '. Please check your API key.';
+            } else if (response.status === 403) {
+                errorMessage += '. Your API key might not have permission for this operation.';
+            } else if (response.status === 429) {
+                errorMessage += '. Rate limit exceeded. Please try again later.';
+            } else if (response.status >= 500) {
+                errorMessage += '. There might be an issue with the Azure service. Please try again later.';
+            }
+        } catch {
+            // Couldn't parse error as JSON
+            if (response.status === 401) {
+                errorMessage += ' Please check your API key.';
+            }
+        }
+
+        throw new Error(errorMessage);
+    }
+
+    // Handle the case where the API might return a 200 but with an error in the response
+    let result;
+    try {
+        result = await response.json() as any;
+    } catch (err) {
+        throw new Error('Failed to parse API response');
+    }
+
+    if (!result.choices || !result.choices[0] || !result.choices[0].message) {
+        throw new Error('Invalid response format from Azure API');
+    }
+
+    const content = result.choices[0].message.content;    // Parse the content into text and metadata
+    try {
+        // Try to extract structured information from the content
+        const pageNumberMatch = content.match(/Page (\d+)/i) || content.match(/p\. (\d+)/i);
+        const chapterMatch = content.match(/Chapter (\d+|[IVX]+)/i);
+        const bookTitleMatch = content.match(/Title: (.*?)(?:\n|$)/i) || content.match(/Book: (.*?)(?:\n|$)/i);
+
+        // Extract figure descriptions
+        const figures = [];
+        const figureMatches = content.matchAll(/Figure (\d+)(?:[.:])?\s*(.*?)(?:\n\n|\n(?=Figure)|\n$)/gis);
+
+        for (const match of figureMatches) {
+            if (match && match[2]) {
+                figures.push({
+                    number: match[1],
+                    description: match[2].trim()
+                });
+            }
+        }
+
+        return {
+            text: content,
+            metadata: {
+                pageNumber: pageNumberMatch ? pageNumberMatch[1] : undefined,
+                chapter: chapterMatch ? chapterMatch[1] : undefined,
+                bookTitle: bookTitleMatch ? bookTitleMatch[1] : undefined,
+                figures: figures.length > 0 ? figures : undefined,
+                rawContent: content
+            }
+        };
+    } catch (err) {
+        // If metadata extraction fails, return the raw content
+        console.warn('Failed to extract metadata:', err);
+        return {
+            text: content,
+            metadata: { rawContent: content }
+        };
+    }
 }
 
 export async function decodeConnectionKey(base64Key: string): Promise<AzureConfig> {

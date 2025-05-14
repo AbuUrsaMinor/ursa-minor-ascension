@@ -1,24 +1,25 @@
-@theme {
-    :root {
-        --primary-color: #3b82f6;
-        --secondary-color: #64748b;
-        --background-color: #ffffff;
-        --text-color: #1f2937;
-    }
+:root {
+    --primary-color: #3b82f6;
+    --secondary-color: #64748b;
+    --background-color: #ffffff;
+    --text-color: #1f2937;
 }
 
-@layer base {
-    :root {
-        @apply bg-background text-text;
-    }
+/* Components */
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
 }
 
-@layer components {
-    .btn-primary {
-        @apply bg-primary text-white px-4 py-2 rounded hover:bg-opacity-90;
-    }
+.btn-primary:hover {
+    opacity: 0.9;
+}
 
-    .card {
-        @apply bg-white rounded-lg shadow-md p-4;
-    }
+.card {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
 }

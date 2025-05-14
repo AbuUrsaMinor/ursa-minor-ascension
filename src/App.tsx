@@ -1,6 +1,15 @@
 import { useEffect, useState } from 'react';
+import { HashRouter } from 'react-router-dom';
+import { AppRoutes } from './AppRoutes';
 import { ConnectionSetup } from './components/ConnectionSetup';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { AzureProvider } from './context/AzureContext';
+import { SeriesDraftProvider } from './context/SeriesDraftContext';
 import { getConnectionKey, isPrivateMode } from './lib/storage';
+
+// Always use HashRouter for GitHub Pages deployment 
+// to ensure basePath is handled correctly
+const Router = HashRouter;
 
 function App() {
   const [hasKey, setHasKey] = useState<boolean>();
@@ -27,7 +36,7 @@ function App() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p>Loading...</p>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -51,18 +60,26 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8 flex items-center justify-between">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Ursa Minor Ascension</h1>
-        </div>
-      </header>
-      <main className="container mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8">
-        <div className="max-w-screen-2xl mx-auto">
-          {/* Dashboard content will go here */}
-        </div>
-      </main>
-    </div>
+    <ErrorBoundary>
+      <AzureProvider>
+        <SeriesDraftProvider>
+          <Router>
+            <div className="min-h-screen bg-gray-50">
+              <header className="bg-white shadow">
+                <div className="max-w-7xl mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8 flex items-center justify-between">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Ursa Minor Ascension</h1>
+                </div>
+              </header>
+              <main className="container mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8">
+                <div className="max-w-screen-2xl mx-auto">
+                  <AppRoutes />
+                </div>
+              </main>
+            </div>
+          </Router>
+        </SeriesDraftProvider>
+      </AzureProvider>
+    </ErrorBoundary>
   );
 }
 
