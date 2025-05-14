@@ -12,7 +12,7 @@ import { encodeConnectionKey } from '../lib/azure';
  */
 
 function createConnectionString(endpoint: string, key: string): string {
-  return `target-uri: ${endpoint}\nkey: ${key}`;
+    return `target-uri: ${endpoint}\nkey: ${key}`;
 }
 
 // Get endpoint and key from command line arguments
@@ -20,10 +20,10 @@ const endpoint = process.argv[2] || "https://example-openai.openai.azure.com/ope
 const key = process.argv[3] || "YOUR_API_KEY_HERE";
 
 if (process.argv.length < 4 && (endpoint.includes("example") || key.includes("YOUR_API_KEY"))) {
-  console.log("Usage: npx tsx src/scripts/formatKey.ts YOUR_ENDPOINT YOUR_API_KEY");
-  console.log("\nExample:");
-  console.log("npx tsx src/scripts/formatKey.ts https://example-openai.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2025-01-01-preview your-api-key");
-  console.log("\nRunning with example values (replace with your actual values):");
+    console.log("Usage: npx tsx src/scripts/formatKey.ts YOUR_ENDPOINT YOUR_API_KEY");
+    console.log("\nExample:");
+    console.log("npx tsx src/scripts/formatKey.ts https://example-openai.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2025-01-01-preview your-api-key");
+    console.log("\nRunning with example values (replace with your actual values):");
 }
 
 const formattedKey = createConnectionString(endpoint, key);
@@ -39,8 +39,8 @@ console.log(urlParam);
 // Extract the base URL from the endpoint
 const baseUrl = new URL(endpoint).origin;
 const legacyFormat = encodeConnectionKey({
-  endpoint: baseUrl,
-  apiKey: key
+    endpoint: baseUrl,
+    apiKey: key
 });
 
 console.log("\n=== Legacy Format (base64) ===");

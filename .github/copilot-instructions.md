@@ -1,5 +1,5 @@
 # Instructions for Copilot
-* The shell is Powershell
+* The Terminal Shell is Powershell. Always use Powershell syntax when interacting with the terminal (for instance using ; instead of &&)
 * When you are choosing or installing libraries (or choosing libraries), always do a web search first to ensure you are using up-to-date libraries and install them correctly.
 
 # About the project

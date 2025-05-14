@@ -122,14 +122,14 @@ export function CaptureView() {
 
     const handleFinishSeries = useCallback(() => {
         navigate('/review');
-    }, [navigate]);
-
-    return (
-        <div className="max-w-2xl mx-auto">
-            <h2 className="text-xl font-semibold mb-6">Capture Pages</h2>
+    }, [navigate]); return (
+        <div className="max-w-2xl mx-auto w-full px-2">
+            <h2 className="text-xl font-semibold mb-6 text-center">Capture Pages</h2>
 
             {captureState === 'camera' && (
-                <Camera onCapture={handleCapture} onError={handleCameraError} />
+                <div className="w-full">
+                    <Camera onCapture={handleCapture} onError={handleCameraError} />
+                </div>
             )}
 
             {captureState === 'preview' && currentImage && (

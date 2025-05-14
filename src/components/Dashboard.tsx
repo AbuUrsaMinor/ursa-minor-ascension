@@ -101,16 +101,15 @@ export function Dashboard() {
                         </Link>
                     </div>
                 ))}
-            </div>
-
-            {/* Floating "New Series" button */}
+            </div>            {/* Floating "New Series" button - ENLARGED */}
             <Link
                 to="/capture"
-                className="fixed right-4 bottom-4 sm:right-8 sm:bottom-8 bg-primary text-white rounded-full shadow-lg p-4 flex items-center justify-center hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                className="fixed right-6 bottom-6 sm:right-8 sm:bottom-8 bg-primary text-white rounded-full shadow-xl p-5 sm:p-6 flex items-center justify-center hover:bg-primary-dark focus:outline-none focus:ring-3 focus:ring-primary focus:ring-offset-2 transition-transform hover:scale-105"
+                style={{ minWidth: '60px', minHeight: '60px' }}
                 aria-label="Create new series"
             >
-                <span className="text-2xl">➕</span>
-                <span className="ml-2 hidden sm:inline">New Series</span>
+                <span className="text-3xl">➕</span>
+                <span className="ml-3 hidden sm:inline text-lg font-medium">New Series</span>
             </Link>
         </div>
     );

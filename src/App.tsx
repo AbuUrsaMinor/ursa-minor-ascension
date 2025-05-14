@@ -18,7 +18,7 @@ function App() {
   const [hasKey, setHasKey] = useState<boolean | null>(null);
   const [isPrivate, setIsPrivate] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   console.log("App render state:", { hasKey, isPrivate, isLoading });
 
   useEffect(() => {
@@ -33,7 +33,7 @@ function App() {
           const hashParts = window.location.hash.split('?');
           const hashParams = hashParts.length > 1 ? new URLSearchParams(hashParts[1]) : new URLSearchParams();
           const keyParam = searchParams.get('key') || hashParams.get('key');
-          
+
           let hasValidKey = false;
 
           // First check if a valid key was provided in the URL
@@ -43,7 +43,7 @@ function App() {
               // Try to decode the key as Base64 JSON
               const jsonStr = atob(keyParam);
               const config = JSON.parse(jsonStr);
-              
+
               if (config.endpoint && config.apiKey) {
                 console.log("URL key is valid, saving to storage");
                 await saveConnectionKey(keyParam);
@@ -62,7 +62,7 @@ function App() {
             console.log("Connection key found in storage:", !!storedKey);
             hasValidKey = !!storedKey;
           }
-          
+
           setHasKey(hasValidKey);
         } else {
           // In private mode, we know there's no key

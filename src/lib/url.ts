@@ -10,13 +10,13 @@ export function generateShareableUrl(key: string, baseUrl?: string): string {
     try {
         // Use the provided base URL or the current window location
         const url = new URL(baseUrl || window.location.href);
-        
+
         // Clear any existing query parameters
         url.search = '';
-        
+
         // Add the key as a parameter
         url.searchParams.set('key', key);
-        
+
         return url.toString();
     } catch (error) {
         console.error("Error generating shareable URL:", error);
@@ -30,14 +30,14 @@ export function generateShareableUrl(key: string, baseUrl?: string): string {
 export function getUrlParams() {
     // First try regular URL parameters (for direct access)
     const searchParams = new URLSearchParams(window.location.search);
-    
+
     // For hash router, the format is like #/path?key=value
     let hashParams = new URLSearchParams();
     const hashParts = window.location.hash.split('?');
     if (hashParts.length > 1) {
         hashParams = new URLSearchParams(hashParts[1]);
     }
-    
+
     return {
         key: searchParams.get('key') || hashParams.get('key') || null
     };
