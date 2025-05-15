@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 import { useAzure } from '../context/AzureContext';
 import { useSeriesDraft } from '../context/SeriesDraftContext';
-import { analyzeImage } from '../lib/azure';
+import { imageProcessor } from '../lib/imageProcessor';
 import { Camera } from './Camera';
+import { ProcessingStatus } from './ProcessingStatus';
 
 type CaptureState = 'camera' | 'preview' | 'processing' | 'error';
 
@@ -12,9 +14,8 @@ export function CaptureView() {
     const [captureState, setCaptureState] = useState<CaptureState>('camera');
     const [currentImage, setCurrentImage] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string>('');
-    const [retryCount, setRetryCount] = useState(0);
 
-    const { draft, initializeDraft, addPage } = useSeriesDraft();
+    const { draft, initializeDraft, addPage, updatePage } = useSeriesDraft();
     const { endpoint, apiKey } = useAzure();
 
     // Initialize draft if not already done
@@ -37,94 +38,79 @@ export function CaptureView() {
     const handleCameraError = useCallback((error: Error) => {
         setErrorMessage(`Camera error: ${error.message}`);
         setCaptureState('error');
-    }, []);
-
-    const handleUsePhoto = useCallback(async () => {
+    }, []); const handleUsePhoto = useCallback(() => {
         if (!currentImage || !endpoint || !apiKey) {
             setErrorMessage('Missing image data or Azure configuration');
             setCaptureState('error');
             return;
         }
 
-        setCaptureState('processing');
+        // Create a blob from the base64 image immediately
+        const byteCharacters = atob(currentImage);
+        const byteNumbers = new Array(byteCharacters.length);
 
-        try {
-            const azureConfig = { endpoint, apiKey };
-
-            // Process the image with Azure
-            const result = await analyzeImage(currentImage, azureConfig);
-
-            // Create a blob from the base64 image
-            const byteCharacters = atob(currentImage);
-            const byteNumbers = new Array(byteCharacters.length);
-
-            for (let i = 0; i < byteCharacters.length; i++) {
-                byteNumbers[i] = byteCharacters.charCodeAt(i);
-            }
-
-            const byteArray = new Uint8Array(byteNumbers);
-            const imageBlob = new Blob([byteArray], { type: 'image/jpeg' });
-
-            // Extract image descriptions from the results
-            // This is a simple implementation - you might want to improve parsing
-            const descriptions: string[] = [];
-            if (result.metadata && result.metadata.figures) {
-                for (const figure of result.metadata.figures) {
-                    if (figure.description) {
-                        descriptions.push(figure.description);
-                    }
-                }
-            }
-
-            // Add the page to the draft series
-            addPage({
-                imageBlob,
-                text: result.text,
-                imageDescriptions: descriptions,
-                meta: result.metadata || {}
-            });
-
-            // Reset state for next capture
-            setCurrentImage(null);
-            setCaptureState('camera');
-            setRetryCount(0);
-        } catch (error) {
-            console.error('Error processing image:', error);
-
-            // Get a more user-friendly error message
-            let errorMsg = 'Failed to process image.';
-            if (error instanceof Error) {
-                errorMsg = error.message;
-
-                // If it's an Azure API error, make it more user-friendly
-                if (errorMsg.includes('Azure API error')) {
-                    errorMsg = `Azure API error: Unable to process image. This could be due to an invalid API key or endpoint.`;
-                }
-            }
-
-            // Implement retry with exponential backoff
-            if (retryCount < 3) {
-                const backoffTime = Math.pow(2, retryCount) * 1000; // Exponential backoff
-                setErrorMessage(`${errorMsg} Retrying in ${backoffTime / 1000} seconds...`);
-                setCaptureState('error');
-
-                setTimeout(() => {
-                    setRetryCount(prev => prev + 1);
-                    handleUsePhoto();
-                }, backoffTime);
-            } else {
-                setErrorMessage(`${errorMsg} Maximum retry attempts reached. Please check your connection key and try again.`);
-                setCaptureState('error');
-                setRetryCount(0);
-            }
+        for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
         }
-    }, [currentImage, endpoint, apiKey, addPage, retryCount]);
+
+        const byteArray = new Uint8Array(byteNumbers);
+        const imageBlob = new Blob([byteArray], { type: 'image/jpeg' });        // Generate a new page ID
+        const pageId = uuidv4();        // Add the page to the draft series with queued status
+        const newPageId = addPage({
+            imageBlob,
+            text: '', // Will be filled when processing completes
+            imageDescriptions: [],
+            meta: {},
+            status: 'queued'
+        });
+
+        console.log('Added page with ID:', newPageId, 'Generated ID was:', pageId);
+
+        // Configure Azure
+        const azureConfig = { endpoint, apiKey };        // Add to background processing queue
+        imageProcessor.enqueue(
+            newPageId, // Use the ID returned from addPage instead of the generated pageId
+            currentImage,
+            azureConfig,
+            (result) => {
+                // On successful processing
+                console.log('Page processed successfully:', result);
+
+                // Update the page with the processed content
+                updatePage(newPageId, {
+                    text: result.text,
+                    imageDescriptions: result.imageDescriptions,
+                    meta: result.meta,
+                    status: 'complete'
+                });
+            },
+            (error, id) => {
+                // On processing error
+                console.error('Error processing page:', error);
+
+                // Update page with error status
+                updatePage(id, {
+                    error: error.message,
+                    status: 'error'
+                });
+            },            // Status change callback to keep UI in sync
+            (id, status) => {
+                console.log(`Status change for page ${id}: ${status}`);
+                updatePage(newPageId, { status });
+            }
+        );
+
+        // Reset state for next capture - immediate return to camera
+        setCurrentImage(null);
+        setCaptureState('camera');
+    }, [currentImage, endpoint, apiKey, addPage, updatePage]);
 
     const handleFinishSeries = useCallback(() => {
         navigate('/review');
     }, [navigate]); return (
         <div className="max-w-2xl mx-auto w-full px-2">
             <h2 className="text-xl font-semibold mb-6 text-center">Capture Pages</h2>
+            <ProcessingStatus />
 
             {captureState === 'camera' && (
                 <div className="w-full">
@@ -142,16 +128,15 @@ export function CaptureView() {
                         />
                     </div>
 
-                    <div className="flex space-x-4">
-                        <button
-                            onClick={handleRetake}
-                            className="flex-1 py-2 px-4 bg-gray-200 rounded-md hover:bg-gray-300"
-                        >
-                            Retake
-                        </button>
+                    <div className="flex space-x-4">                        <button
+                        onClick={handleRetake}
+                        className="flex-1 py-2 px-4 bg-gray-200 rounded-md hover:bg-gray-300"
+                    >
+                        Retake
+                    </button>
                         <button
                             onClick={handleUsePhoto}
-                            className="flex-1 py-2 px-4 bg-primary text-white rounded-md hover:bg-primary-dark"
+                            className="flex-1 py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                         >
                             Use Photo
                         </button>

@@ -9,6 +9,8 @@ export interface Page {
         bookTitle?: string;
         [key: string]: unknown;
     };
+    status?: 'pending' | 'queued' | 'processing' | 'complete' | 'error';
+    error?: string;
 }
 
 export interface Series {

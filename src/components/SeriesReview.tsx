@@ -1,12 +1,15 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
+import { useAzure } from '../context/AzureContext';
 import { useSeriesDraft } from '../context/SeriesDraftContext';
+import { imageProcessor } from '../lib/imageProcessor';
 import { saveSeries } from '../lib/storage';
 
 export function SeriesReview() {
     const navigate = useNavigate();
     const { draft, updatePage, removePage, setSeriesName, clearDraft } = useSeriesDraft();
+    const { endpoint, apiKey } = useAzure();
     const [isSaving, setIsSaving] = useState(false);
     const [errors, setErrors] = useState<{ name?: string }>({});
     const [editingTextId, setEditingTextId] = useState<string | null>(null);
@@ -31,13 +34,56 @@ export function SeriesReview() {
 
     const handleDelete = useCallback((id: string) => {
         removePage(id);
-    }, [removePage]);
-
-    const handleRetake = useCallback((id: string) => {
+    }, [removePage]); const handleRetake = useCallback((id: string) => {
         // Remove the page and redirect back to capture
         removePage(id);
         navigate('/capture');
     }, [removePage, navigate]);
+
+    const handleRetryProcessing = useCallback((pageId: string) => {
+        if (!draft || !endpoint || !apiKey) return;
+
+        // Find the page in the draft
+        const page = draft.pages.find(p => p.id === pageId);
+        if (!page) return;
+
+        // Create base64 from blob
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64data = reader.result?.toString().split(',')[1];
+            if (!base64data) return;
+
+            // Update page status to pending
+            updatePage(pageId, { status: 'pending', error: undefined });            // Add to processing queue
+            imageProcessor.enqueue(
+                pageId,
+                base64data,
+                { endpoint, apiKey },
+                (result) => {
+                    // On successful processing
+                    updatePage(pageId, {
+                        text: result.text,
+                        imageDescriptions: result.imageDescriptions,
+                        meta: result.meta,
+                        status: 'complete'
+                    });
+                },
+                (error, id) => {
+                    // On error
+                    updatePage(id, {
+                        error: error.message,
+                        status: 'error'
+                    });
+                },
+                // Status change callback to keep UI in sync
+                (id, status) => {
+                    console.log(`Status update in SeriesReview: ${id} → ${status}`);
+                    updatePage(id, { status });
+                }
+            );
+        };
+        reader.readAsDataURL(page.imageBlob);
+    }, [draft, endpoint, apiKey, updatePage]);
 
     const handleSaveSeries = useCallback(async () => {
         if (!draft || !draft.name) {
@@ -103,10 +149,9 @@ export function SeriesReview() {
 
             {draft.pages.length === 0 ? (
                 <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 p-4 rounded-md mb-6">
-                    <p>No pages in this series. Please add at least one page.</p>
-                    <button
+                    <p>No pages in this series. Please add at least one page.</p>                    <button
                         onClick={() => navigate('/capture')}
-                        className="mt-4 py-2 px-4 bg-primary text-white rounded-md"
+                        className="mt-4 py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                     >
                         Capture Pages
                     </button>
@@ -117,9 +162,47 @@ export function SeriesReview() {
                         {draft.pages.map((page, index) => (
                             <div key={page.id} className="bg-white p-4 rounded-lg shadow-md">
                                 <div className="sm:flex sm:gap-6">
-                                    {/* Image Preview */}
-                                    <div className="sm:w-1/3 mb-4 sm:mb-0">
-                                        <div className="bg-gray-200 rounded-md overflow-hidden">
+                                    {/* Image Preview */}                                    <div className="sm:w-1/3 mb-4 sm:mb-0">
+                                        <div className="bg-gray-200 rounded-md overflow-hidden relative">                                        {page.status === 'queued' && (
+                                            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                                                <div className="bg-white px-3 py-2 rounded-md">
+                                                    <div className="w-6 h-6 border-2 border-gray-300 border-t-blue-500 rounded-full mx-auto"></div>
+                                                    <p className="text-sm mt-1">Queued</p>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                            {page.status === 'pending' && (
+                                                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                                                    <div className="bg-white px-3 py-2 rounded-md">
+                                                        <div className="w-6 h-6 border-2 border-gray-300 rounded-full mx-auto"></div>
+                                                        <p className="text-sm mt-1">Pending</p>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {page.status === 'processing' && (
+                                                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                                                    <div className="bg-white px-3 py-2 rounded-md">
+                                                        <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-primary mx-auto"></div>
+                                                        <p className="text-sm mt-1">Processing</p>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {page.status === 'error' && (
+                                                <div className="absolute inset-0 bg-red-500 bg-opacity-20 flex items-center justify-center">
+                                                    <div className="bg-white p-3 rounded-md max-w-[90%]">
+                                                        <p className="text-sm text-red-600 mb-2">{page.error || 'Processing failed'}</p>                                                        <button
+                                                            onClick={() => handleRetryProcessing(page.id)}
+                                                            className="text-sm bg-blue-600 text-white py-1 px-2 rounded-md w-full hover:bg-blue-700"
+                                                        >
+                                                            Retry Processing
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+
                                             <img
                                                 src={URL.createObjectURL(page.imageBlob)}
                                                 alt={`Page ${index + 1}`}
@@ -318,7 +401,7 @@ export function SeriesReview() {
                                 </button>
                                 <button
                                     type="submit"
-                                    className="py-2 px-4 bg-primary text-white rounded-md"
+                                    className="py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                                 >
                                     Save
                                 </button>
