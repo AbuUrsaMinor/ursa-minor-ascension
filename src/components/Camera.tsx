@@ -134,38 +134,32 @@ export function Camera({ onCapture, onError }: CameraProps) {
                     style={{ transform: facingMode === 'user' ? 'scaleX(-1)' : 'none' }}
                 />
 
-                {/* Overlay with camera controls - with improved visibility */}            {/* Camera controls overlay with improved sizing and visibility */}
-                <div className="absolute bottom-0 left-0 right-0 flex justify-center items-center space-x-8 py-6 px-4 bg-black bg-opacity-40 z-50">
+                {/* Overlay with camera controls - with improved visibility */}            {/* Camera controls overlay with improved sizing and visibility */}                <div className="absolute bottom-0 left-0 right-0 flex justify-center items-center space-x-8 py-6 px-4 bg-black bg-opacity-40 z-50">
                     {/* Toggle camera button - ENLARGED */}
                     <button
                         onClick={toggleCamera}
-                        className="p-5 bg-blue-600 rounded-full hover:bg-blue-700 shadow-lg border-3 border-white transition-transform hover:scale-105"
+                        className="flex items-center justify-center p-5 bg-blue-600 rounded-full hover:bg-blue-700 shadow-lg border-2 border-white transition-transform hover:scale-105 w-16 h-16 min-w-16 min-h-16"
                         aria-label="Switch camera"
                         style={{ boxShadow: '0 4px 10px rgba(0,0,0,0.5)' }}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
-                    </button>
-                    
-                    {/* Capture button - ENLARGED */}
+                    </button>                    {/* Capture button - ENLARGED */}
                     <button
                         onClick={capturePhoto}
-                        className="p-3 bg-white rounded-full hover:bg-gray-100 shadow-lg transform transition-transform hover:scale-105"
+                        className="flex items-center justify-center p-3 bg-white rounded-full hover:bg-gray-100 shadow-lg transform transition-transform hover:scale-105 w-28 h-28"
                         aria-label="Take photo"
                         style={{ boxShadow: '0 4px 10px rgba(0,0,0,0.5)' }}
                     >
                         <div className="h-20 w-20 rounded-full border-4 border-gray-800 flex items-center justify-center">
                             <div className="h-16 w-16 rounded-full bg-red-600"></div>
                         </div>
-                    </button>
-                    
-                    {/* Flashlight button - ENLARGED */}
+                    </button>                    {/* Flashlight button - ENLARGED */}
                     <button
                         onClick={toggleFlashlight}
-                        className={`p-5 rounded-full shadow-lg transition-all hover:scale-105 border-3 border-white ${
-                            flashlightOn ? 'bg-yellow-400 text-black' : 'bg-gray-800 text-white'
-                        }`}
+                        className={`flex items-center justify-center p-5 rounded-full shadow-lg transition-all hover:scale-105 border-2 border-white w-16 h-16 min-w-16 min-h-16 ${flashlightOn ? 'bg-yellow-400 text-black' : 'bg-gray-800 text-white'
+                            }`}
                         aria-label="Toggle flashlight"
                         style={{ boxShadow: '0 4px 10px rgba(0,0,0,0.5)' }}
                     >
