@@ -20,6 +20,7 @@ export interface FlashCard {
     question: string;
     answer: string;
     sourcePages: string[];
+    pageReferences?: string;
     difficulty: FlashCardDifficulty;
     concepts: string[];
     createdAt: string;

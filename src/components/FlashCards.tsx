@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAzure } from '../context/AzureContext';
 import { cancelFlashCardGeneration, startFlashCardGeneration, updateSeriesWithFlashCards } from '../lib/flashcardService';
 import type { FlashCard, FlashCardDifficulty, FlashCardGenerationStatus, Series } from '../types/index';
+import { AnkiExportButton } from './AnkiExportButton';
 import { FlashCardGenerator } from './FlashCardGenerator';
 import { FlashCardItem } from './FlashCardItem';
 
@@ -155,15 +156,18 @@ export function FlashCards({ series, onSeriesUpdate }: FlashCardsProps) {
 
     // Render flash cards list with filters
     return (
-        <div className="mt-8">
-            <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-semibold">Flash Cards ({series.flashcards.length})</h3>                <button
+        <div className="mt-8">            <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-semibold">Flash Cards ({series.flashcards.length})</h3>
+            <div className="flex space-x-2">
+                <AnkiExportButton series={series} />
+                <button
                     onClick={() => handleStartGeneration(10)}
                     className="py-2 px-4 bg-blue-500 text-white rounded-md"
                 >
                     Regenerate Cards
                 </button>
             </div>
+        </div>
 
             {/* Filters */}
             <div className="flex flex-wrap gap-3 mb-6">

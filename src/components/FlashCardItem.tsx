@@ -15,6 +15,7 @@ export function FlashCardItem({ card, series, isSelected, onClick, onDelete }: F
     const [isEditing, setIsEditing] = useState(false);
     const [editedQuestion, setEditedQuestion] = useState(card.question);
     const [editedAnswer, setEditedAnswer] = useState(card.answer);
+    const [editedPageRefs, setEditedPageRefs] = useState(card.pageReferences || '');
 
     // Map source page IDs to page numbers for display
     const sourcePages = card.sourcePages.map(pageId => {
@@ -34,11 +35,13 @@ export function FlashCardItem({ card, series, isSelected, onClick, onDelete }: F
             default:
                 return 'bg-gray-100 text-gray-800';
         }
-    };
-
-    // Handle saving edits
+    };    // Handle saving edits
     const handleSave = () => {
-        // TODO: Implement saving edits
+        // TODO: Implement saving edits to backend/database
+        // For now, just update local state
+        card.question = editedQuestion;
+        card.answer = editedAnswer;
+        card.pageReferences = editedPageRefs;
         setIsEditing(false);
     };
 
@@ -57,9 +60,7 @@ export function FlashCardItem({ card, series, isSelected, onClick, onDelete }: F
                             className="w-full px-3 py-2 border border-gray-300 rounded-md"
                             rows={2}
                         />
-                    </div>
-
-                    <div className="mb-3">
+                    </div>                    <div className="mb-3">
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                             Answer
                         </label>
@@ -68,6 +69,19 @@ export function FlashCardItem({ card, series, isSelected, onClick, onDelete }: F
                             onChange={(e) => setEditedAnswer(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md"
                             rows={3}
+                        />
+                    </div>
+
+                    <div className="mb-3">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Page References
+                        </label>
+                        <input
+                            type="text"
+                            value={editedPageRefs}
+                            onChange={(e) => setEditedPageRefs(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            placeholder="e.g., Page 5, Page 10"
                         />
                     </div>
 
@@ -178,18 +192,22 @@ export function FlashCardItem({ card, series, isSelected, onClick, onDelete }: F
                                 </button>
                             </div>
                         </div>
-                        <p className="text-gray-800" dangerouslySetInnerHTML={{ __html: card.answer }} />
-
-                        {/* Source pages */}
-                        <div className="mt-3 flex flex-wrap gap-1">
-                            {sourcePages.map((page, idx) => (
-                                <span
-                                    key={idx}
-                                    className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
-                                >
-                                    Page {page}
-                                </span>
-                            ))}
+                        <p className="text-gray-800" dangerouslySetInnerHTML={{ __html: card.answer }} />                        {/* Source pages */}
+                        <div className="mt-3">
+                            {card.pageReferences ? (
+                                <p className="text-xs text-gray-600 italic mb-1">{card.pageReferences}</p>
+                            ) : (
+                                <div className="flex flex-wrap gap-1">
+                                    {sourcePages.map((page, idx) => (
+                                        <span
+                                            key={idx}
+                                            className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
+                                        >
+                                            Page {page}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
                         <button

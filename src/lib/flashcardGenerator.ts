@@ -41,9 +41,11 @@ const FlashCardResponseSchema = z.object({
     question: z.string()
         .describe('The question text for the flash card'),
     answer: z.string()
-        .describe('The answer text for the flash card'),
+        .describe('The answer text for the flash card without page references'),
     sourcePages: z.array(z.string())
-        .describe('Array of page IDs or numbers where this information was found'),
+        .describe('Array of page IDs where this information was found'),
+    pageReferences: z.string().optional()
+        .describe('Human-readable text describing the page references'),
     difficulty: z.enum(['easy', 'medium', 'hard'])
         .describe('The estimated difficulty level of this question'),
     concepts: z.array(z.string())
@@ -187,7 +189,7 @@ export async function estimateFlashCardCount(
                 messages: [
                     {
                         role: "system",
-                        content: `You are an expert in educational content analysis. Analyze this sample text and estimate the number of unique flash cards possible from the complete material.`
+                        content: `You are an expert in educational content analysis. Analyze this sample text and estimate the number of unique flash cards possible from the complete material. The flash cards will have questions in Swedish and answers in the original language of the content.`
                     },
                     {
                         role: "user",
@@ -327,17 +329,24 @@ async function generateCardsForChunk(
     const systemPrompt = `You are an expert educational content creator specializing in generating high-quality flash cards.
 Your task is to create ${cardCount} flash cards from the provided content, ensuring:
 
-1. Questions are clear, concise, and test understanding (not just recall)
-2. Answers are comprehensive yet concise, with all key information
-3. Each answer references the exact page(s) where the information is found
-4. Cards cover diverse concepts within the material
-5. No duplicate or highly similar cards are created
-6. Difficulty level is set to: ${difficulty === 'mixed' ? 'a mix of easy, medium, and hard' : difficulty}
+1. Questions are ALWAYS written in Swedish, regardless of the language of the content
+2. Answers are in the original language of the content
+3. Questions are clear, concise, and test understanding (not just recall)
+4. Answers are comprehensive yet concise, with all key information
+5. IMPORTANT: Place page references in the separate "pageReferences" field, NOT in the answer text
+6. Cards cover diverse concepts within the material
+7. No duplicate or highly similar cards are created
+8. Difficulty level is set to: ${difficulty === 'mixed' ? 'a mix of easy, medium, and hard' : difficulty}
+
+Important: All questions MUST be in Swedish for Swedish students learning the material, even if the content is in another language. The answers should remain in the original language of the content.
 
 Here are the available page references:
 ${pageReferences}
 
-When citing source pages, use the exact page IDs from this list.`;
+When citing source pages:
+- Use the exact page IDs from this list in the sourcePages array
+- Put human-readable page references in the pageReferences field (e.g., "Page 5, Page 10")
+- Keep the answer field focused on content without any page references`;
 
     try {
         const response = await client.beta.chat.completions.parse({
@@ -349,7 +358,7 @@ When citing source pages, use the exact page IDs from this list.`;
                 },
                 {
                     role: "user",
-                    content: `Please create ${cardCount} flash cards from this content, following the guidelines I provided:\n\n${chunk.content}`
+                    content: `Please create ${cardCount} flash cards from this content, following the guidelines I provided. Remember that all questions MUST be in Swedish, while answers should be in the original language:\n\n${chunk.content}`
                 }
             ],
             temperature: 0.5,
@@ -375,7 +384,7 @@ When citing source pages, use the exact page IDs from this list.`;
                 },
                 {
                     role: "user",
-                    content: `Please create ${cardCount} flash cards from this content, following the guidelines I provided. Return them in a JSON object with a "flashcards" array property containing the cards.\n\n${chunk.content}`
+                    content: `Please create ${cardCount} flash cards from this content, following the guidelines I provided. Remember that all questions MUST be in Swedish, while answers should be in the original language. Return them in a JSON object with a "flashcards" array property containing the cards.\n\n${chunk.content}`
                 }
             ],
             temperature: 0.5,
