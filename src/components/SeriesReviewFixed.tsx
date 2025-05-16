@@ -86,10 +86,43 @@ export function SeriesReview() {
             );
         };
         reader.readAsDataURL(page.imageBlob);
-    }, [draft, endpoint, apiKey, updatePage]); const handleSaveSeries = useCallback(async () => {
-        // Always show the name dialog first to ensure the series has a name
-        setShowNameDialog(true);
-    }, []); const handleStartSave = useCallback(() => {
+    }, [draft, endpoint, apiKey, updatePage]);
+
+    const handleSaveSeries = useCallback(async () => {
+        // If no name is set, show the dialog and return
+        if (!draft || !draft.name?.trim()) {
+            setShowNameDialog(true);
+            return;
+        }
+
+        setIsSaving(true);
+
+        try {
+            // Create the complete series object with ID and creation date
+            const fullSeries = {
+                id: uuidv4(),
+                name: draft.name,
+                createdAt: new Date().toISOString(),
+                pages: draft.pages
+            };
+
+            // Save to IndexedDB
+            await saveSeries(fullSeries);
+
+            // Clear the draft
+            clearDraft();
+
+            // Navigate to dashboard
+            navigate('/');
+        } catch (error) {
+            console.error('Error saving series:', error);
+            // Handle error
+        } finally {
+            setIsSaving(false);
+        }
+    }, [draft, clearDraft, navigate]);
+
+    const handleStartSave = useCallback(() => {
         setShowNameDialog(true);
     }, []);
 
@@ -318,25 +351,23 @@ export function SeriesReview() {
                                             </div>
                                         )}
 
-                                        {/* Metadata */}                                        {Object.keys(page.meta).length > 0 && (
+                                        {/* Metadata */}
+                                        {Object.keys(page.meta).length > 0 && (
                                             <div className="mt-4">
                                                 <h4 className="text-sm font-medium mb-1">Metadata:</h4>
                                                 <dl className="text-sm grid grid-cols-2 gap-x-4 gap-y-1">
-                                                    {Object.entries(page.meta)
-                                                        .filter(([key, value]) =>
-                                                            value != null &&
-                                                            value !== '' &&
-                                                            key !== 'figures' &&
-                                                            key !== 'error' &&
-                                                            String(value).trim() !== ''
-                                                        )
-                                                        .map(([key, value]) => (
+                                                    {Object.entries(page.meta).map(([key, value]) => (
+                                                        value != null &&
+                                                        value !== '' &&
+                                                        key !== 'figures' &&
+                                                        key !== 'error' &&
+                                                        String(value).trim() !== '' && (
                                                             <div key={key} className="col-span-2 sm:col-span-1">
                                                                 <dt className="font-medium">{key}:</dt>
                                                                 <dd>{String(value)}</dd>
                                                             </div>
-                                                        ))
-                                                    }
+                                                        )
+                                                    ))}
                                                 </dl>
                                             </div>
                                         )}
@@ -360,8 +391,9 @@ export function SeriesReview() {
                                     className="py-2 px-4 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50"
                                 >
                                     Add More Pages
-                                </button>                                <button
-                                    onClick={() => setShowNameDialog(true)}
+                                </button>
+                                <button
+                                    onClick={handleStartSave}
                                     disabled={draft.pages.length === 0 || isSaving}
                                     className="py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50"
                                 >

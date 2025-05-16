@@ -1,0 +1,21 @@
+.rotateY-0 {
+    transform: rotateY(0deg);
+}
+
+.rotateY-180 {
+    transform: rotateY(180deg);
+}
+
+.card-flip {
+    transition: transform 0.5s;
+    transform-style: preserve-3d;
+}
+
+.card-front,
+.card-back {
+    backface-visibility: hidden;
+}
+
+.card-back {
+    transform: rotateY(180deg);
+}

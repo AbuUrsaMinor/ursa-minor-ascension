@@ -91,11 +91,17 @@ export function Dashboard() {
                                     />
                                 )}
                             </div>
-                            <div className="p-4">
-                                <h3 className="font-semibold text-lg mb-1 truncate">{item.name}</h3>
-                                <div className="text-sm text-gray-500 flex justify-between">
-                                    <span>{item.pages.length} {item.pages.length === 1 ? 'page' : 'pages'}</span>
-                                    <span>{formatDate(item.createdAt)}</span>
+                            <div className="p-4">                                <h3 className="font-semibold text-lg mb-1 truncate">{item.name}</h3>
+                                <div className="text-sm text-gray-500">
+                                    <div className="flex justify-between mb-1">
+                                        <span>{item.pages.length} {item.pages.length === 1 ? 'page' : 'pages'}</span>
+                                        <span>{formatDate(item.createdAt)}</span>
+                                    </div>
+                                    {item.flashcards && item.flashcards.length > 0 && (
+                                        <div className="text-primary-600 font-medium">
+                                            {item.flashcards.length} flash card{item.flashcards.length !== 1 ? 's' : ''}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </Link>

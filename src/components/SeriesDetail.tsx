@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { deleteSeries, getSeries } from '../lib/storage';
+import { deleteSeries, getSeries, saveSeries } from '../lib/storage';
 import type { Series } from '../types';
+import { FlashCards } from './FlashCards';
 
 export function SeriesDetail() {
     const { seriesId } = useParams<{ seriesId: string }>();
@@ -161,9 +162,12 @@ export function SeriesDetail() {
 
                     {/* Text Content */}
                     <div className="sm:w-1/2">
-                        <h3 className="text-lg font-medium mb-4">Text Content</h3>
-                        <div className="bg-gray-50 p-4 rounded-md max-h-96 overflow-y-auto">
-                            {currentPage.text || <em>No text content available</em>}
+                        <h3 className="text-lg font-medium mb-4">Text Content</h3>                        <div className="bg-gray-50 p-4 rounded-md max-h-96 overflow-y-auto">
+                            {currentPage.text ? (
+                                <div dangerouslySetInnerHTML={{ __html: currentPage.text }} />
+                            ) : (
+                                <em>No text content available</em>
+                            )}
                         </div>
 
                         {/* Image Descriptions */}
@@ -195,6 +199,23 @@ export function SeriesDetail() {
                             </div>
                         )}
                     </div>
+                </div>
+            </div>            {/* Flash Cards Section */}
+            <div className="mt-12">
+                <div className="border-t border-gray-200 pt-8">
+                    <FlashCards
+                        series={series}
+                        onSeriesUpdate={(updatedSeries) => {
+                            // Update the series in state
+                            setSeries(updatedSeries);
+
+                            // Save changes to database
+                            saveSeries(updatedSeries).catch(err => {
+                                console.error('Failed to save series updates:', err);
+                                setError('Failed to update series');
+                            });
+                        }}
+                    />
                 </div>
             </div>
 

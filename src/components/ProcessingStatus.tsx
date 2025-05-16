@@ -27,11 +27,9 @@ export function ProcessingStatus() {
             queueStatus.processing === 0 &&
             queueStatus.error === 0)) {
         return null;
-    }
-
-    return (
-        <div className="fixed bottom-4 right-4 bg-gray-800 text-white p-4 rounded-lg shadow-lg max-w-xs">
-            <h4 className="font-medium text-sm mb-2">Processing Status</h4>
+    } return (
+        <div className="fixed top-4 right-4 bg-gray-800 text-white p-3 rounded-lg shadow-lg max-w-xs opacity-80">
+            <h4 className="font-medium text-sm mb-1">Processing Status</h4>
 
             <div className="space-y-1 text-xs">
                 {queueStatus.processing > 0 && (

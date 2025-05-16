@@ -98,18 +98,18 @@ export function CaptureView() {
                 console.log(`Status change for page ${id}: ${status}`);
                 updatePage(newPageId, { status });
             }
-        );
-
-        // Reset state for next capture - immediate return to camera
+        );        // Show processing state but stay on the current page
         setCurrentImage(null);
         setCaptureState('camera');
+
+        // Don't automatically navigate to review after the first image is processed
     }, [currentImage, endpoint, apiKey, addPage, updatePage]);
 
     const handleFinishSeries = useCallback(() => {
         navigate('/review');
     }, [navigate]); return (
         <div className="max-w-2xl mx-auto w-full px-2">
-            <h2 className="text-xl font-semibold mb-6 text-center">Capture Pages</h2>
+            {/* Removed header to maximize space */}
             <ProcessingStatus />
 
             {captureState === 'camera' && (

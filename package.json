@@ -52,6 +52,7 @@
   "dependencies": {
     "@azure/identity": "^4.9.1",
     "@azure/openai": "^2.1.0-beta.1",
+    "comlink": "^4.4.2",
     "idb": "^8.0.3",
     "openai": "^4.98.0",
     "react-router-dom": "^7.6.0",

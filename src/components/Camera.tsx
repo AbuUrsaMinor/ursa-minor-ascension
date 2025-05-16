@@ -120,9 +120,8 @@ export function Camera({ onCapture, onError }: CameraProps) {
             onError(error instanceof Error ? error : new Error('Failed to capture image'));
         }
     }, [onCapture, onError]); return (
-        <div className="camera-container space-y-4 w-full">
-            {/* Debug indicator to show component is rendering */}
-            <div className="bg-blue-500 text-white p-1 text-xs absolute top-0 right-0 z-50">Camera Active</div>
+        <div className="camera-container w-full">
+            {/* Removed debug indicator to clean up UI */}
             <div className="relative rounded-lg overflow-hidden shadow-lg bg-gray-900" style={{ height: '70vh', minHeight: '400px', position: 'relative' }}>
                 {/* Video element for camera feed */}
                 <video

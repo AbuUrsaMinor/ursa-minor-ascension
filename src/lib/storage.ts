@@ -19,21 +19,30 @@ interface AscensionDB extends DBSchema {
 }
 
 const DB_NAME = 'ascension-db';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 async function initDB(): Promise<IDBPDatabase<AscensionDB>> {
     return openDB<AscensionDB>(DB_NAME, DB_VERSION, {
-        upgrade(db) {
-            // Create series store
-            const seriesStore = db.createObjectStore('series', {
-                keyPath: 'id'
-            });
-            seriesStore.createIndex('by-date', 'createdAt');
+        upgrade(db, oldVersion) {
+            if (oldVersion < 1) {
+                // Create series store
+                const seriesStore = db.createObjectStore('series', {
+                    keyPath: 'id'
+                });
+                seriesStore.createIndex('by-date', 'createdAt');
 
-            // Create settings store
-            db.createObjectStore('settings', {
-                keyPath: 'id'
-            });
+                // Create settings store
+                db.createObjectStore('settings', {
+                    keyPath: 'id'
+                });
+            }
+
+            // Version 2: Add flashcards support
+            if (oldVersion < 2) {
+                console.log('Upgrading database to version 2: Adding flashcards support');
+                // No schema change needed as the flashcards will be stored within the Series object
+                // The structure is handled at the application level
+            }
         },
     });
 }

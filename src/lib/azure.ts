@@ -17,7 +17,8 @@ const TextbookPageSchema = z.object({
     figures: z.array(z.object({
         number: z.string().optional().describe("Figure number if available"),
         description: z.string().describe("Detailed description of the figure content")
-    })).optional().describe("Descriptions of any figures on the page")
+    })).optional().describe("Descriptions of any figures on the page"),
+    error: z.boolean().optional().describe("Flag to indicate if there was an error extracting text from the image")
 });
 
 export type TextbookPageData = z.infer<typeof TextbookPageSchema>;
@@ -81,7 +82,8 @@ export async function analyzeImage(
                         role: "system",
                         content: `You are a skilled assistant that analyzes images of textbook pages. 
                         Extract all text content from the page verbatim, and provide any metadata available such as page numbers, 
-                        chapter names, and book titles. Also identify and describe all figures, tables, and images on the page.`
+                        chapter names, and book titles. Also identify and describe all figures, tables, and images on the page.
+                        If you cannot extract meaningful text from the image, set the error flag to true.`
                     },
                     {
                         role: "user",
@@ -110,6 +112,9 @@ export async function analyzeImage(
                 // We have the validated data now with automatic schema validation
                 const validatedData = message.parsed;
 
+                // Check if text is empty
+                const hasNoText = !validatedData.text || validatedData.text.trim().length === 0;
+
                 // Return the extracted data in the expected format
                 return {
                     text: validatedData.text,
@@ -118,8 +123,8 @@ export async function analyzeImage(
                         chapter: validatedData.chapter_name,
                         bookTitle: validatedData.title,
                         figures: validatedData.figures || [],
-                        // Store the full parsed data for debugging
-                        parsedData: validatedData
+                        // Include error flag based on either explicit error or empty text
+                        error: validatedData.error === true || hasNoText
                     }
                 };
             } else if (message.refusal) {
@@ -152,7 +157,8 @@ export async function analyzeImage(
                         Extract the following information in a structured format following this JSON schema:
                         ${JSON.stringify(textbookPageJsonSchema, null, 2)}
                         
-                        Always provide output exactly according to this schema.`
+                        Always provide output exactly according to this schema.
+                        If you cannot extract meaningful text from the image, set the error flag to true.`
                     },
                     {
                         role: "user",
@@ -197,7 +203,10 @@ export async function analyzeImage(
 
                 const validatedData = validationResult.data;
 
-                // No need to extract image descriptions separately as they're part of the figures array
+                // Check if text is empty
+                const hasNoText = !validatedData.text || validatedData.text.trim().length === 0;
+
+                // Return with error flag if appropriate
                 return {
                     text: validatedData.text,
                     metadata: {
@@ -205,7 +214,8 @@ export async function analyzeImage(
                         chapter: validatedData.chapter_name,
                         bookTitle: validatedData.title,
                         figures: validatedData.figures || [],
-                        rawContent: content
+                        rawContent: content,
+                        error: validatedData.error === true || hasNoText
                     }
                 };
             } catch (jsonErr) {
@@ -233,6 +243,9 @@ function fallbackTextParsing(content: string): { text: string; metadata: Record<
     // Extract figure descriptions
     const figures = extractFigureDescriptions(content);
 
+    // Check if text is minimal or meaningless
+    const hasNoText = !content || content.trim().length < 10;
+
     return {
         text: content,
         metadata: {
@@ -240,7 +253,8 @@ function fallbackTextParsing(content: string): { text: string; metadata: Record<
             chapter: chapterMatch ? chapterMatch[1] : undefined,
             bookTitle: bookTitleMatch ? bookTitleMatch[1] : undefined,
             figures: figures.length > 0 ? figures : undefined,
-            rawContent: content
+            rawContent: content,
+            error: hasNoText
         }
     };
 }
