@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { FlashCardGenerationStatus, Series } from '../types/index';
 
+const ESTIMATION_TIMEOUT_MS = 10000;
+const MIN_CARD_COUNT = 5;
+const MAX_CARD_COUNT = 50;
+const FALLBACK_ESTIMATION_FACTOR = 4;
+
 interface FlashCardGeneratorProps {
     series: Series;
     status: FlashCardGenerationStatus;
@@ -14,17 +19,13 @@ export function FlashCardGenerator({
     onStartGeneration,
     onCancel
 }: FlashCardGeneratorProps) {
-    const [cardCount, setCardCount] = useState(10);
+    const [cardCount, setCardCount] = useState(MIN_CARD_COUNT); // Use MIN_CARD_COUNT
     const [estimatedCount, setEstimatedCount] = useState<number | null>(null);
-    const [estimationAttempted, setEstimationAttempted] = useState(false);
-
-    // Estimation timeout handling
     const [estimationTimeout, setEstimationTimeout] = useState(false);
 
     // Reset estimation status when series changes
     useEffect(() => {
         setEstimatedCount(null);
-        setEstimationAttempted(false);
         setEstimationTimeout(false);
     }, [series.id]);
 
@@ -32,33 +33,36 @@ export function FlashCardGenerator({
     useEffect(() => {
         let timeoutId: NodeJS.Timeout | null = null;
 
-        if (status.status === 'estimating' && !estimationTimeout) {
+        if (status.status === 'estimating' && !estimationTimeout && estimatedCount === null) { // Check estimatedCount === null
             timeoutId = setTimeout(() => {
                 console.log('Estimation timeout reached');
                 setEstimationTimeout(true);
                 // Fallback to a reasonable estimate based on page count
-                const fallbackEstimate = Math.min(Math.max(series.pages.length * 4, 5), 50);
+                const fallbackEstimate = Math.min(
+                    Math.max((series.pages?.length || 0) * FALLBACK_ESTIMATION_FACTOR, MIN_CARD_COUNT),
+                    MAX_CARD_COUNT
+                );
                 setEstimatedCount(fallbackEstimate);
-                setEstimationAttempted(true);
-            }, 10000); // 10 second timeout
+            }, ESTIMATION_TIMEOUT_MS);
         }
 
         return () => {
             if (timeoutId) clearTimeout(timeoutId);
         };
-    }, [status.status, estimationTimeout, series.pages.length]);
+    }, [status.status, estimationTimeout, series.pages?.length, estimatedCount]); // Added estimatedCount to dependencies
 
     // Update estimated count when status changes
     useEffect(() => {
         if (status.estimatedCount !== undefined && status.estimatedCount !== null) {
             setEstimatedCount(status.estimatedCount);
-            setEstimationAttempted(true);
+            // If we get a real estimate, reset the timeout flag
+            setEstimationTimeout(false);
         }
     }, [status.estimatedCount]);
 
     const handleCountChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const value = parseInt(e.target.value, 10);
-        if (!isNaN(value) && value >= 5 && value <= 50) {
+        if (!isNaN(value) && value >= MIN_CARD_COUNT && value <= MAX_CARD_COUNT) {
             setCardCount(value);
         }
     }, []);
@@ -141,15 +145,17 @@ export function FlashCardGenerator({
                     Create flash cards from your series content to help with studying and retention.
                 </p>
 
-                {status.status === 'estimating' && !estimationTimeout ? (
-                    <div className="flex items-center mt-4 text-gray-600">
+                {status.status === 'estimating' && !estimationTimeout && estimatedCount === null ? (
+                    <div className="flex items-center mt-4 text-gray-600" role="status" aria-live="polite">
                         <div className="animate-spin mr-2 h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
                         <p>Estimating optimal number of flash cards...</p>
                     </div>
-                ) : estimationAttempted && estimatedCount !== null ? (
+                ) : estimatedCount !== null ? (
                     <div className="mt-4 bg-blue-50 border-l-4 border-blue-400 p-3">
                         <p className="text-blue-700">
-                            Based on your content, we recommend generating approximately {estimatedCount} flash cards.
+                            {estimationTimeout
+                                ? `Estimation is taking longer than expected. Based on your content, we suggest starting with approximately ${estimatedCount} flash cards.`
+                                : `Based on your content, we recommend generating approximately ${estimatedCount} flash cards.`}
                         </p>
                     </div>
                 ) : null}
@@ -163,17 +169,17 @@ export function FlashCardGenerator({
                     <input
                         type="range"
                         id="cardCount"
-                        min="5"
-                        max="50"
+                        min={MIN_CARD_COUNT}
+                        max={MAX_CARD_COUNT}
                         step="1"
                         value={cardCount}
                         onChange={handleCountChange}
                         className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                     />
                     <div className="flex justify-between text-xs text-gray-500 mt-1">
-                        <span>5</span>
+                        <span>{MIN_CARD_COUNT}</span>
                         <span>{cardCount}</span>
-                        <span>50</span>
+                        <span>{MAX_CARD_COUNT}</span>
                     </div>
                 </div>
 

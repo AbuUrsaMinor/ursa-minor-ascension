@@ -54,18 +54,55 @@ function extractFigureDescriptions(content: string): Array<{ number: string, des
  */
 export async function analyzeImage(
     imageBase64: string,
-    config: AzureConfig
+    config: AzureConfig & { extractedDeployment?: string, extractedApiVersion?: string, baseEndpoint?: string }
 ): Promise<{ text: string; metadata: Record<string, any> }> {
     try {
-        // Extract deployment name and API version from the endpoint if included
-        // If not included, use default values (gpt-4 and 2024-10-21)
-        let deployment = "gpt-4";
-        const apiVersion = "2024-10-21";
+        // Extract deployment name and API version from the enhanced config or use defaults
+        let deployment = config.extractedDeployment || "gpt-4"; // Use extracted value or default
+        let apiVersion = config.extractedApiVersion || "2024-05-01"; // Use extracted value or default
+        let baseEndpoint = config.baseEndpoint || config.endpoint; // Use pre-extracted base endpoint if available
+
+        // Only parse the URL if we don't already have the extracted values
+        if (!config.extractedDeployment || !config.extractedApiVersion || !config.baseEndpoint) {
+            try {
+                const url = new URL(config.endpoint);
+
+                // Check if the endpoint URL contains deployment information (if not already extracted)
+                if (!config.extractedDeployment) {
+                    const pathParts = url.pathname.split('/');
+                    const deploymentIndex = pathParts.findIndex(part => part === 'deployments');
+
+                    if (deploymentIndex >= 0 && deploymentIndex + 1 < pathParts.length) {
+                        deployment = pathParts[deploymentIndex + 1];
+                        console.log("Extracted deployment from URL:", deployment);
+                    }
+                }
+
+                // Extract API version from query parameters if available (if not already extracted)
+                if (!config.extractedApiVersion) {
+                    const apiVersionParam = url.searchParams.get('api-version');
+                    if (apiVersionParam) {
+                        apiVersion = apiVersionParam;
+                        console.log("Extracted API version from URL:", apiVersion);
+                    }
+                }
+
+                // Use the base endpoint (without the path to deployments) if not already available
+                if (!config.baseEndpoint) {
+                    baseEndpoint = url.origin;
+                }
+            } catch (urlError) {
+                console.warn("Failed to parse endpoint URL for deployment and API version:", urlError);
+                // Continue with default values if URL parsing fails
+            }
+        } else {
+            console.log("Using pre-extracted values - Deployment:", deployment, "API Version:", apiVersion);
+        }
 
         // Create the Azure OpenAI client
         const client = new AzureOpenAI({
             apiKey: config.apiKey,
-            endpoint: config.endpoint,
+            endpoint: baseEndpoint,
             deployment,
             apiVersion,
             dangerouslyAllowBrowser: true // Required for browser environments
@@ -76,7 +113,7 @@ export async function analyzeImage(
         try {
             // Use the beta client with zodResponseFormat helper for structured output
             const result = await client.beta.chat.completions.parse({
-                model: deployment,
+                model: deployment, // Use deployment variable
                 messages: [
                     {
                         role: "system",
@@ -97,7 +134,7 @@ export async function analyzeImage(
                     }
                 ],
                 temperature: 0,
-                max_tokens: 16384,
+                max_tokens: 16384, // Consider reviewing if this high limit is always necessary for typical inputs.
                 response_format: zodResponseFormat(TextbookPageSchema, "textbookPage")
             });
 
@@ -149,7 +186,7 @@ export async function analyzeImage(
 
             // Call Azure OpenAI service using the SDK with structured output (legacy approach)
             const response = await client.chat.completions.create({
-                model: deployment,
+                model: deployment, // Use deployment variable
                 messages: [
                     {
                         role: "system",
@@ -236,6 +273,7 @@ export async function analyzeImage(
  */
 function fallbackTextParsing(content: string): { text: string; metadata: Record<string, any> } {
     // Parse the content into text and metadata using regex
+    // Consider thorough testing of these regex patterns with diverse inputs
     const pageNumberMatch = content.match(/Page (\d+)/i) || content.match(/p\. (\d+)/i);
     const chapterMatch = content.match(/Chapter (\d+|[IVX]+)/i);
     const bookTitleMatch = content.match(/Title: (.*?)(?:\n|$)/i) || content.match(/Book: (.*?)(?:\n|$)/i);
@@ -265,20 +303,66 @@ function fallbackTextParsing(content: string): { text: string; metadata: Record<
  * @param connectionString - Base64 encoded connection string
  * @returns AzureConfig object with endpoint and apiKey
  */
-export async function decodeConnectionKey(connectionString: string): Promise<AzureConfig> {
+export async function decodeConnectionKey(connectionString: string): Promise<AzureConfig & { extractedDeployment?: string, extractedApiVersion?: string }> {
     try {
         // Parse the base64-encoded JSON string
         const jsonStr = atob(connectionString);
-        const config = JSON.parse(jsonStr);
+        const parsedJson = JSON.parse(jsonStr);
 
-        if (!config.endpoint || !config.apiKey) {
-            throw new Error("Invalid connection key format: missing endpoint or apiKey");
+        // Define a Zod schema for AzureConfig to validate the parsed JSON
+        const AzureConfigValidationSchema = z.object({
+            endpoint: z.string().url({ message: "Invalid endpoint URL" }),
+            apiKey: z.string().min(1, { message: "API key cannot be empty" })
+        });
+
+        const validationResult = AzureConfigValidationSchema.safeParse(parsedJson);
+
+        if (!validationResult.success) {
+            console.error("Invalid connection key format:", validationResult.error.flatten().fieldErrors);
+            const errorMessages = Object.values(validationResult.error.flatten().fieldErrors).flat().join(', ');
+            throw new Error(`Invalid connection key format: ${errorMessages || "Validation failed."}`);
+        }
+
+        const config = validationResult.data;
+        const enhancedConfig: AzureConfig & {
+            extractedDeployment?: string;
+            extractedApiVersion?: string;
+            baseEndpoint?: string;
+        } = { ...config };
+
+        // Try to extract deployment and API version from the endpoint URL
+        try {
+            const url = new URL(config.endpoint);
+
+            // Check if the endpoint URL contains deployment information
+            const pathParts = url.pathname.split('/');
+            const deploymentIndex = pathParts.findIndex(part => part === 'deployments');
+
+            if (deploymentIndex >= 0 && deploymentIndex + 1 < pathParts.length) {
+                enhancedConfig.extractedDeployment = pathParts[deploymentIndex + 1];
+            }
+
+            // Extract API version from query parameters if available
+            const apiVersionParam = url.searchParams.get('api-version');
+            if (apiVersionParam) {
+                enhancedConfig.extractedApiVersion = apiVersionParam;
+            }
+
+            // Store the base endpoint (without the path to deployments)
+            enhancedConfig.baseEndpoint = url.origin;
+        } catch (urlError) {
+            console.warn("Failed to parse endpoint URL for deployment and API version:", urlError);
+            // Continue without extracted values if URL parsing fails
         }
 
         console.log("Decoded connection key successfully");
-        return config;
+        return enhancedConfig;
     } catch (error) {
         console.error("Failed to decode connection key:", error);
+        // Ensure the thrown error is an Error instance
+        if (error instanceof Error) {
+            throw new Error(`Failed to decode connection key. ${error.message}`);
+        }
         throw new Error("Failed to decode connection key. Please check the format.");
     }
 }
