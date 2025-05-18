@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0",
+  "updatedAt": "2025-05-18T17:34:13.416Z",
+  "packs": [
+    {
+      "id": "c44cb1b6-fd51-48c5-b108-97670254af99",
+      "title": "Fryspåsar",
+      "description": "Hello",
+      "author": "Det är jag det",
+      "createdAt": "2025-05-18T17:32:25.332Z",
+      "cardCount": 5,
+      "imageCount": 1,
+      "version": "1.0.0",
+      "filename": "frysp_sar.studypack"
+    }
+  ]
+}

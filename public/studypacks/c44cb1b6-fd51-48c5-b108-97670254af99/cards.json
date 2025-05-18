@@ -1,0 +1,77 @@
+[
+  {
+    "question": "Hur kan man tina maten som är förvarad i fryspåsarna?",
+    "answer": "You can defrost the food directly in the freezer bag, either in warm water or in a microwave.",
+    "sourcePages": [
+      "360d4aae-5070-4633-b721-8aabaeee39a7"
+    ],
+    "pageReferences": "Unknown page",
+    "difficulty": "easy",
+    "concepts": [
+      "Food storage",
+      "Freezer bags"
+    ],
+    "id": "6b8603fd-4385-4834-9223-f8e1edd02999",
+    "createdAt": "2025-05-18T07:13:44.456Z"
+  },
+  {
+    "question": "Vad är målet med sortimentets miljöanpassning enligt texten?",
+    "answer": "The goal is to provide environmentally adapted alternatives in all areas of the assortment, minimizing negative environmental impact.",
+    "sourcePages": [
+      "360d4aae-5070-4633-b721-8aabaeee39a7"
+    ],
+    "pageReferences": "Unknown page",
+    "difficulty": "medium",
+    "concepts": [
+      "Environmental responsibility",
+      "Sustainability"
+    ],
+    "id": "21b58ad4-7a8d-481f-9037-2beb9ccd93a2",
+    "createdAt": "2025-05-18T07:13:44.456Z"
+  },
+  {
+    "question": "Vilket material är fryspåsarna tillverkade av?",
+    "answer": "The freezer bags are made of polyethylene PE-LD.",
+    "sourcePages": [
+      "360d4aae-5070-4633-b721-8aabaeee39a7"
+    ],
+    "pageReferences": "Unknown page",
+    "difficulty": "easy",
+    "concepts": [
+      "Material composition",
+      "Product information"
+    ],
+    "id": "b2f62eab-7b62-4395-b901-5fde3105eaeb",
+    "createdAt": "2025-05-18T07:13:44.456Z"
+  },
+  {
+    "question": "Vilken typ av energi används vid tillverkningen av fryspåsarna?",
+    "answer": "The bags are manufactured in a factory that uses only renewable electricity from wind power.",
+    "sourcePages": [
+      "360d4aae-5070-4633-b721-8aabaeee39a7"
+    ],
+    "pageReferences": "Unknown page",
+    "difficulty": "medium",
+    "concepts": [
+      "Renewable energy",
+      "Manufacturing process"
+    ],
+    "id": "d28a4a83-1786-4cb8-8c8b-49076ad3e253",
+    "createdAt": "2025-05-18T07:13:44.456Z"
+  },
+  {
+    "question": "Var kan man sortera ytterförpackningen av fryspåsarna?",
+    "answer": "The outer packaging consists of 100% recycled fiber and is sorted as cardboard.",
+    "sourcePages": [
+      "360d4aae-5070-4633-b721-8aabaeee39a7"
+    ],
+    "pageReferences": "Unknown page",
+    "difficulty": "easy",
+    "concepts": [
+      "Recycling",
+      "Packaging materials"
+    ],
+    "id": "6c4b7dd5-93fb-43c0-9b42-7ff59ee1f4d5",
+    "createdAt": "2025-05-18T07:13:44.456Z"
+  }
+]

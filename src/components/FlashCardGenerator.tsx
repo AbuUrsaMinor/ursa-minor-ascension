@@ -95,7 +95,7 @@ export function FlashCardGenerator({
                 </div>
                 <button
                     onClick={() => onStartGeneration(cardCount)}
-                    className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    className="w-full py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700"
                 >
                     Try Again
                 </button>
@@ -115,7 +115,7 @@ export function FlashCardGenerator({
                 <div className="mb-4">
                     <div className="w-full bg-gray-200 rounded-full h-2.5">
                         <div
-                            className="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-in-out"
+                            className="bg-green-600 h-2.5 rounded-full transition-all duration-300 ease-in-out"
                             style={{ width: `${progress}%` }}
                         ></div>
                     </div>
@@ -185,7 +185,7 @@ export function FlashCardGenerator({
 
                 <button
                     type="submit"
-                    className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex justify-center items-center"
+                    className="w-full py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700 flex justify-center items-center"
                 >
                     Generate {cardCount} Flash Cards
                 </button>

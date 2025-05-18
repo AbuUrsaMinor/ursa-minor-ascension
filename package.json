@@ -20,6 +20,7 @@
     "genkey": "tsx src/scripts/formatKey.ts",
     "share-link": "tsx src/scripts/generate-share-link.ts",
     "generate-icons": "tsx scripts/generateIcons.ts",
+    "import-studypack": "tsx scripts/studypack-import.ts",
     "clean": "powershell -Command \"Get-ChildItem -Path src -Recurse -Filter *.js | Where-Object { (Test-Path ($_.FullName -replace '\\.js$','.ts')) -or (Test-Path ($_.FullName -replace '\\.js$','.tsx')) } | Remove-Item\""
   },
   "devDependencies": {

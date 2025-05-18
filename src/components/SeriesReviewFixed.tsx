@@ -186,7 +186,7 @@ export function SeriesReview() {
                     <p>No pages in this series. Please add at least one page.</p>
                     <button
                         onClick={() => navigate('/capture')}
-                        className="mt-4 py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                        className="mt-4 py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700"
                     >
                         Capture Pages
                     </button>
@@ -233,7 +233,7 @@ export function SeriesReview() {
                                                         <p className="text-sm text-red-600 mb-2">{page.error || 'Processing failed'}</p>
                                                         <button
                                                             onClick={() => handleRetryProcessing(page.id)}
-                                                            className="text-sm bg-blue-600 text-white py-1 px-2 rounded-md w-full hover:bg-blue-700"
+                                                            className="text-sm bg-green-600 text-white py-1 px-2 rounded-md w-full hover:bg-green-700"
                                                         >
                                                             Retry Processing
                                                         </button>
@@ -306,7 +306,7 @@ export function SeriesReview() {
                                                                 handleSaveText(page.id, textarea.value);
                                                             }
                                                         }}
-                                                        className="py-1 px-3 bg-blue-600 text-white rounded"
+                                                        className="py-1 px-3 bg-green-600 text-white rounded"
                                                     >
                                                         Save
                                                     </button>
@@ -388,7 +388,7 @@ export function SeriesReview() {
                             <div className="flex gap-4">
                                 <button
                                     onClick={() => navigate('/capture')}
-                                    className="py-2 px-4 border border-blue-600 text-blue-600 rounded-md hover:bg-blue-50"
+                                    className="py-2 px-4 border border-green-600 text-green-600 rounded-md hover:bg-green-50"
                                 >
                                     Add More Pages
                                 </button>

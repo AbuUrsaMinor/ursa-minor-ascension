@@ -137,7 +137,7 @@ export function Camera({ onCapture, onError }: CameraProps) {
                     {/* Toggle camera button - ENLARGED */}
                     <button
                         onClick={toggleCamera}
-                        className="flex items-center justify-center p-5 bg-blue-600 rounded-full hover:bg-blue-700 shadow-lg border-2 border-white transition-transform hover:scale-105 w-16 h-16 min-w-16 min-h-16"
+                        className="flex items-center justify-center p-5 bg-green-600 rounded-full hover:bg-green-700 shadow-lg border-2 border-white transition-transform hover:scale-105 w-16 h-16 min-w-16 min-h-16"
                         aria-label="Switch camera"
                         style={{ boxShadow: '0 4px 10px rgba(0,0,0,0.5)' }}
                     >

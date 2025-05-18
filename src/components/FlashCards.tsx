@@ -5,6 +5,7 @@ import type { FlashCard, FlashCardDifficulty, FlashCardGenerationStatus, Series 
 import { AnkiExportButton } from './AnkiExportButton';
 import { FlashCardGenerator } from './FlashCardGenerator';
 import { FlashCardItem } from './FlashCardItem';
+import { StudyPackExportButton } from './StudyPackExportButton';
 
 interface FlashCardsProps {
     series: Series;
@@ -156,13 +157,12 @@ export function FlashCards({ series, onSeriesUpdate }: FlashCardsProps) {
 
     // Render flash cards list with filters
     return (
-        <div className="mt-8">            <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-semibold">Flash Cards ({series.flashcards.length})</h3>
+        <div className="mt-8">            <div className="flex justify-between items-center mb-6">            <h3 className="text-xl font-semibold">Flash Cards ({series.flashcards.length})</h3>
             <div className="flex space-x-2">
-                <AnkiExportButton series={series} />
-                <button
+                <StudyPackExportButton series={series} />
+                <AnkiExportButton series={series} />                <button
                     onClick={() => handleStartGeneration(10)}
-                    className="py-2 px-4 bg-blue-500 text-white rounded-md"
+                    className="py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700"
                 >
                     Regenerate Cards
                 </button>

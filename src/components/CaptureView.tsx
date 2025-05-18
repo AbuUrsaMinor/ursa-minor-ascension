@@ -136,7 +136,7 @@ export function CaptureView() {
                     </button>
                         <button
                             onClick={handleUsePhoto}
-                            className="flex-1 py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                            className="flex-1 py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700"
                         >
                             Use Photo
                         </button>

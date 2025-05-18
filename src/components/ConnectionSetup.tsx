@@ -142,7 +142,7 @@ export function ConnectionSetup({ onSetup }: ConnectionSetupProps) {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary-dark disabled:opacity-50"
+                            className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50"
                         >
                             {isLoading ? 'Validating...' : 'Continue'}
                         </button>

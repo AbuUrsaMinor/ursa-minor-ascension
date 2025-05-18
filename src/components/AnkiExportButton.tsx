@@ -114,7 +114,7 @@ export function AnkiExportButton({ series, className = '' }: AnkiExportButtonPro
                     <button
                         onClick={() => handleExport(true)}
                         disabled={isExporting}
-                        className={`py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center ${isExporting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className={`py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center ${isExporting ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                         <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"></path>

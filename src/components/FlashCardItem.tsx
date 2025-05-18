@@ -7,7 +7,7 @@ interface FlashCardItemProps {
     series: Series;
     isSelected: boolean;
     onClick: () => void;
-    onDelete: () => void;
+    onDelete?: () => void;
 }
 
 export function FlashCardItem({ card, series, isSelected, onClick, onDelete }: FlashCardItemProps) {
@@ -16,6 +16,14 @@ export function FlashCardItem({ card, series, isSelected, onClick, onDelete }: F
     const [editedQuestion, setEditedQuestion] = useState(card.question);
     const [editedAnswer, setEditedAnswer] = useState(card.answer);
     const [editedPageRefs, setEditedPageRefs] = useState(card.pageReferences || '');
+
+    // Function to safely call onDelete if it exists
+    const handleDelete = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (onDelete) {
+            onDelete();
+        }
+    };
 
     // Map source page IDs to page numbers for display
     const sourcePages = card.sourcePages.map(pageId => {
@@ -94,7 +102,7 @@ export function FlashCardItem({ card, series, isSelected, onClick, onDelete }: F
                         </button>
                         <button
                             onClick={handleSave}
-                            className="py-1 px-3 bg-primary text-white rounded-md"
+                            className="py-1 px-3 bg-green-600 text-white rounded-md hover:bg-green-700"
                         >
                             Save
                         </button>

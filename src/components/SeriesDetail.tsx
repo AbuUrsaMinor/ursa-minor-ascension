@@ -86,7 +86,7 @@ export function SeriesDetail() {
                 <p>{error || 'Failed to load series'}</p>
                 <button
                     onClick={() => navigate('/')}
-                    className="mt-4 py-2 px-4 bg-primary text-white rounded-md"
+                    className="mt-4 py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700"
                 >
                     Return to Dashboard
                 </button>
