@@ -4,6 +4,7 @@ import { AppRoutes } from './AppRoutes';
 import { ConnectionSetup } from './components/ConnectionSetup';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { AzureProvider } from './context/AzureContext';
+import { DomainProvider } from './context/DomainContext';
 import { SeriesDraftProvider } from './context/SeriesDraftContext';
 import { getConnectionKey, isPrivateMode, saveConnectionKey } from './lib/storage';
 
@@ -110,18 +111,11 @@ function App() {
       <AzureProvider>
         <SeriesDraftProvider>
           <Router>
-            <div className="min-h-screen bg-gray-50">
-              <header className="bg-white shadow">
-                <div className="max-w-7xl mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8 flex items-center justify-between">
-                  <h1 className="!text-xs font-bold text-gray-900">Ursa Minor Ascension</h1>
-                </div>
-              </header>
-              <main className="container mx-auto py-4 px-4 sm:py-6 sm:px-6 lg:px-8">
-                <div className="max-w-screen-2xl mx-auto">
-                  <AppRoutes />
-                </div>
-              </main>
-            </div>
+            <DomainProvider>
+              <div className="min-h-screen bg-gray-50">
+                <AppRoutes />
+              </div>
+            </DomainProvider>
           </Router>
         </SeriesDraftProvider>
       </AzureProvider>

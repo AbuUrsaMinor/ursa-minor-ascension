@@ -24,6 +24,7 @@ interface StudyPackManifestEntry {
     imageCount: number;
     version: string;
     filename: string;
+    widgets?: Array<{ type: string; count: number }>;
 }
 
 interface StudyPackManifest {
@@ -41,6 +42,7 @@ interface StudyPackMetadata {
     cardCount: number;
     hasImages: boolean;
     version: string;
+    widgets?: Array<{ type: string; count: number }>;
 }
 
 // Constants
@@ -112,19 +114,20 @@ async function processStudyPack(studyPackPath: string) {
             process.exit(1);
         }
 
-        const studyPackFileData = await studyPackFile.async('string');
-        // Parse the StudyPack data
+        const studyPackFileData = await studyPackFile.async('string');        // Parse the StudyPack data
         const studyPack = JSON.parse(studyPackFileData);
         const metadata = studyPack.metadata as StudyPackMetadata;
         const cards = studyPack.cards || [];
+        const widgets = studyPack.widgets || [];
 
         if (!metadata || !metadata.id || !metadata.title) {
             console.error('Error: Invalid StudyPack metadata');
             process.exit(1);
         }
 
-        if (!cards || !Array.isArray(cards) || cards.length === 0) {
-            console.warn('Warning: No flash cards found in StudyPack');
+        // Check if we have either cards or widgets
+        if ((cards.length === 0) && (widgets.length === 0)) {
+            console.warn('Warning: No content found in StudyPack');
         }
 
         // Generate a unique ID for the pack if it doesn't have one
@@ -186,21 +189,25 @@ async function processStudyPack(studyPackPath: string) {
         fs.writeFileSync(
             path.join(packDir, 'metadata.json'),
             JSON.stringify(packMetadata, null, 2)
-        );
-
-        // Save the cards as a separate JSON file
+        );        // Save the cards as a separate JSON file
         fs.writeFileSync(
             path.join(packDir, 'cards.json'),
             JSON.stringify(cards, null, 2)
         );
 
+        // Save the widgets as a separate JSON file if available
+        if (widgets.length > 0) {
+            fs.writeFileSync(
+                path.join(packDir, 'widgets.json'),
+                JSON.stringify(widgets, null, 2)
+            );
+        }
+
         // Update the manifest
         const manifest = loadManifest();
 
         // Check if this pack already exists in the manifest
-        const existingPackIndex = manifest.packs.findIndex(p => p.id === packId);
-
-        // Create the manifest entry
+        const existingPackIndex = manifest.packs.findIndex(p => p.id === packId);        // Create the manifest entry
         const manifestEntry: StudyPackManifestEntry = {
             id: packId,
             title: metadata.title,
@@ -210,7 +217,8 @@ async function processStudyPack(studyPackPath: string) {
             cardCount: cards.length,
             imageCount: imageFiles.length,
             version: metadata.version || '1.0.0',
-            filename: path.basename(studyPackPath)
+            filename: path.basename(studyPackPath),
+            widgets: metadata.widgets
         };
 
         // Update or add to the manifest
@@ -223,10 +231,30 @@ async function processStudyPack(studyPackPath: string) {
         }
 
         // Save the updated manifest
-        saveManifest(manifest);
-        console.log(`✅ Successfully imported StudyPack: ${metadata.title}`);
+        saveManifest(manifest); console.log(`✅ Successfully imported StudyPack: ${metadata.title}`);
         console.log(`   ID: ${packId}`);
-        console.log(`   Cards: ${cards.length}`);
+
+        if (cards.length > 0) {
+            console.log(`   Cards: ${cards.length}`);
+        }
+
+        if (widgets.length > 0) {
+            console.log(`   Widgets: ${widgets.length}`);
+
+            // Group widgets by type and count
+            const widgetTypeMap = new Map<string, number>();
+            widgets.forEach(widget => {
+                const type = widget.type || 'unknown';
+                const count = widgetTypeMap.get(type) || 0;
+                widgetTypeMap.set(type, count + 1);
+            });
+
+            // Log widget type counts
+            widgetTypeMap.forEach((count, type) => {
+                console.log(`      - ${count} ${type}${count > 1 && !type.endsWith('s') ? 's' : ''}`);
+            });
+        }
+
         console.log(`   Images: ${imageFiles.length}`);
 
         return packId;

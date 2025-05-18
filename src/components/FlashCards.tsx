@@ -1,25 +1,32 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAzure } from '../context/AzureContext';
+import { useDomain } from '../context/DomainContext';
 import { cancelFlashCardGeneration, startFlashCardGeneration, updateSeriesWithFlashCards } from '../lib/flashcardService';
 import type { FlashCard, FlashCardDifficulty, FlashCardGenerationStatus, Series } from '../types/index';
 import { AnkiExportButton } from './AnkiExportButton';
 import { FlashCardGenerator } from './FlashCardGenerator';
 import { FlashCardItem } from './FlashCardItem';
+import { FlashCardItemViewer } from './FlashCardItemViewer';
 import { StudyPackExportButton } from './StudyPackExportButton';
 
 interface FlashCardsProps {
     series: Series;
     onSeriesUpdate: (series: Series) => void;
+    readOnly?: boolean;
 }
 
-export function FlashCards({ series, onSeriesUpdate }: FlashCardsProps) {
+export function FlashCards({ series, onSeriesUpdate, readOnly = false }: FlashCardsProps) {
     const { endpoint, apiKey } = useAzure();
+    const { domain } = useDomain();
     const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
     const [filterDifficulty, setFilterDifficulty] = useState<FlashCardDifficulty | 'all'>('all');
     const [filterPage, setFilterPage] = useState<string | 'all'>('all');
     const [generationStatus, setGenerationStatus] = useState<FlashCardGenerationStatus>(
         series.flashcardStatus || { status: 'idle' }
     );
+
+    // If no explicit readOnly prop is provided, use the domain context
+    const isReadOnly = readOnly || domain === 'viewer';
 
     // Get unique page numbers for filter
     const pageOptions = series.pages
@@ -140,11 +147,21 @@ export function FlashCards({ series, onSeriesUpdate }: FlashCardsProps) {
     const handleCancel = useCallback(() => {
         cancelFlashCardGeneration(series.id);
         setGenerationStatus({ status: 'idle' });
-    }, [series.id]);    // If we have no flash cards yet, show the generator
+    }, [series.id]);
+
+    // If we have no flash cards yet, show the generator in creator mode, or a message in viewer mode
     if (!series.flashcards || series.flashcards.length === 0) {
+        if (isReadOnly) {
+            return (
+                <div className="mt-8 p-6 bg-gray-50 rounded-lg text-center text-gray-600">
+                    <h3 className="text-xl font-semibold mb-4">No Flash Cards Available</h3>
+                    <p>This series doesn't have any flash cards for studying.</p>
+                </div>
+            );
+        }
+
         return (
             <>
-                {/* Removed Quick Generate button as per requirements */}
                 <FlashCardGenerator
                     series={series}
                     status={generationStatus}
@@ -157,17 +174,24 @@ export function FlashCards({ series, onSeriesUpdate }: FlashCardsProps) {
 
     // Render flash cards list with filters
     return (
-        <div className="mt-8">            <div className="flex justify-between items-center mb-6">            <h3 className="text-xl font-semibold">Flash Cards ({series.flashcards.length})</h3>
-            <div className="flex space-x-2">
-                <StudyPackExportButton series={series} />
-                <AnkiExportButton series={series} />                <button
-                    onClick={() => handleStartGeneration(10)}
-                    className="py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700"
-                >
-                    Regenerate Cards
-                </button>
+        <div className="mt-8">
+            <div className="flex justify-between items-center mb-6">
+                <h3 className={`text-xl font-semibold ${isReadOnly ? 'text-green-700' : 'text-blue-700'}`}>
+                    Flash Cards ({series.flashcards.length})
+                </h3>
+                <div className="flex space-x-2">
+                    <StudyPackExportButton series={series} />
+                    <AnkiExportButton series={series} />
+                    {!isReadOnly && (
+                        <button
+                            onClick={() => handleStartGeneration(10)}
+                            className="py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                        >
+                            Regenerate Cards
+                        </button>
+                    )}
+                </div>
             </div>
-        </div>
 
             {/* Filters */}
             <div className="flex flex-wrap gap-3 mb-6">
@@ -210,23 +234,33 @@ export function FlashCards({ series, onSeriesUpdate }: FlashCardsProps) {
             <div className="space-y-4">
                 {filteredCards.length > 0 ? (
                     filteredCards.map((card) => (
-                        <FlashCardItem
-                            key={card.id}
-                            card={card}
-                            series={series}
-                            isSelected={selectedCardId === card.id}
-                            onClick={() => setSelectedCardId(selectedCardId === card.id ? null : card.id)}
-                            onDelete={() => {
-                                // Remove the card
-                                const updatedFlashcards = series.flashcards?.filter(c => c.id !== card.id) || [];
+                        isReadOnly ? (
+                            <FlashCardItemViewer
+                                key={card.id}
+                                card={card}
+                                series={series}
+                                isSelected={selectedCardId === card.id}
+                                onClick={() => setSelectedCardId(selectedCardId === card.id ? null : card.id)}
+                            />
+                        ) : (
+                            <FlashCardItem
+                                key={card.id}
+                                card={card}
+                                series={series}
+                                isSelected={selectedCardId === card.id}
+                                onClick={() => setSelectedCardId(selectedCardId === card.id ? null : card.id)}
+                                onDelete={() => {
+                                    // Remove the card
+                                    const updatedFlashcards = series.flashcards?.filter(c => c.id !== card.id) || [];
 
-                                // Update the series
-                                onSeriesUpdate({
-                                    ...series,
-                                    flashcards: updatedFlashcards
-                                });
-                            }}
-                        />
+                                    // Update the series
+                                    onSeriesUpdate({
+                                        ...series,
+                                        flashcards: updatedFlashcards
+                                    });
+                                }}
+                            />
+                        )
                     ))
                 ) : (
                     <div className="bg-gray-50 p-6 rounded-lg text-center text-gray-500">

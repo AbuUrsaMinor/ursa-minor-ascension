@@ -1,5 +1,4 @@
 # Instructions for Copilot
-* The Terminal Shell is Bash. 
 * When you are choosing or installing libraries (or choosing libraries), always do a web search first to ensure you are using up-to-date libraries and install them correctly.
 * Repeatedly build the project while adding new features
 * Repeatedly analyse the project structure to find duplicated code and dead code
