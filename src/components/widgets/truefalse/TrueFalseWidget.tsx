@@ -1,5 +1,6 @@
+// filepath: c:\Users\A550191\git\ursa-minor-ascension\src\components\widgets\truefalse\TrueFalseWidget.tsx
 import { useState } from 'react';
-import type { TrueFalseWidget as TrueFalseWidgetType } from '../../types';
+import type { TrueFalseWidget as TrueFalseWidgetType } from '../../../types';
 
 interface TrueFalseWidgetProps {
     widget: TrueFalseWidgetType;
@@ -137,7 +138,7 @@ export function TrueFalseWidget({ widget, onComplete }: TrueFalseWidgetProps) {
                     {/* Timer */}
                     {timerActive && (
                         <div className="flex justify-center mb-4">
-                            <div className={`text-xl font-bold w-10 h-10 flex items-center justify-center rounded-full ${timeLeft > 1 ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'
+                            <div className={`text-xl font-bold w-10 h-10 flex items-center justify-center rounded-full ${timeLeft > 1 ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'}
                                 }`}>
                                 {timeLeft}
                             </div>
@@ -155,10 +156,10 @@ export function TrueFalseWidget({ widget, onComplete }: TrueFalseWidgetProps) {
                             onClick={() => handleSelection(true)}
                             disabled={revealed[currentIndex]}
                             className={`px-6 py-3 rounded-lg font-medium text-white ${revealed[currentIndex]
-                                    ? currentStatement.isTrue
-                                        ? 'bg-green-500'
-                                        : 'bg-gray-400'
-                                    : 'bg-green-600 hover:bg-green-700'
+                                ? currentStatement.isTrue
+                                    ? 'bg-green-500'
+                                    : 'bg-gray-400'
+                                : 'bg-green-600 hover:bg-green-700'
                                 }`}
                         >
                             TRUE
@@ -167,10 +168,10 @@ export function TrueFalseWidget({ widget, onComplete }: TrueFalseWidgetProps) {
                             onClick={() => handleSelection(false)}
                             disabled={revealed[currentIndex]}
                             className={`px-6 py-3 rounded-lg font-medium text-white ${revealed[currentIndex]
-                                    ? !currentStatement.isTrue
-                                        ? 'bg-green-500'
-                                        : 'bg-gray-400'
-                                    : 'bg-red-600 hover:bg-red-700'
+                                ? !currentStatement.isTrue
+                                    ? 'bg-green-500'
+                                    : 'bg-gray-400'
+                                : 'bg-red-600 hover:bg-red-700'
                                 }`}
                         >
                             FALSE
@@ -180,7 +181,7 @@ export function TrueFalseWidget({ widget, onComplete }: TrueFalseWidgetProps) {
                     {/* Explanation when revealed */}
                     {revealed[currentIndex] && (
                         <div className="mb-4">
-                            <p className={`p-3 rounded text-sm ${currentStatement.isTrue ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+                            <p className={`p-3 rounded text-sm ${currentStatement.isTrue ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}
                                 }`}>
                                 <span className="font-medium">
                                     {currentStatement.isTrue ? 'TRUE: ' : 'FALSE: '}

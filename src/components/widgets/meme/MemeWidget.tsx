@@ -1,5 +1,6 @@
+// filepath: c:\Users\A550191\git\ursa-minor-ascension\src\components\widgets\meme\MemeWidget.tsx
 import { useState } from 'react';
-import type { MemeWidget as MemeWidgetType } from '../../types';
+import type { MemeWidget as MemeWidgetType } from '../../../types';
 
 interface MemeWidgetProps {
     widget: MemeWidgetType;
@@ -24,7 +25,7 @@ export function MemeWidget({ widget, onShare }: MemeWidgetProps) {
 
     return (
         <div
-            className={`bg-white rounded-lg shadow border border-gray-200 overflow-hidden transition-all duration-300 ${enlarged ? "fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75" : ""
+            className={`bg-white rounded-lg shadow border border-gray-200 overflow-hidden transition-all duration-300 ${enlarged ? "fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75" : ""}
                 }`}
             onClick={toggleEnlarged}
         >

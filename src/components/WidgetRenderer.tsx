@@ -1,11 +1,11 @@
 import { lazy, Suspense } from 'react';
 import type { Series, Widget } from '../types';
-import { FlashCardItem } from './FlashCardItem';
+import { FlashCardItem } from './widgets/flashcard/FlashCardItem';
 
 // Lazy load widget components to improve initial load time
-const ClozeWidget = lazy(() => import('./widgets/ClozeWidget').then(module => ({ default: module.ClozeWidget })));
-const MemeWidget = lazy(() => import('./widgets/MemeWidget').then(module => ({ default: module.MemeWidget })));
-const TrueFalseWidget = lazy(() => import('./widgets/TrueFalseWidget').then(module => ({ default: module.TrueFalseWidget })));
+const ClozeWidget = lazy(() => import('./widgets/cloze/ClozeWidget').then(module => ({ default: module.ClozeWidget })));
+const MemeWidget = lazy(() => import('./widgets/meme/MemeWidget').then(module => ({ default: module.MemeWidget })));
+const TrueFalseWidget = lazy(() => import('./widgets/truefalse/TrueFalseWidget').then(module => ({ default: module.TrueFalseWidget })));
 
 // Add more imports for other widget types as they are implemented
 

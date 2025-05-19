@@ -1,6 +1,7 @@
+// filepath: c:\Users\A550191\git\ursa-minor-ascension\src\components\widgets\flashcard\FlashCardItem.tsx
 import { useState } from 'react';
-import type { FlashCard, Series } from '../types/index';
-import './FlashCards.css';
+import type { FlashCard, Series } from '../../../types/index';
+import '../../flashcards/FlashCards.css';
 
 interface FlashCardItemProps {
     card: FlashCard;

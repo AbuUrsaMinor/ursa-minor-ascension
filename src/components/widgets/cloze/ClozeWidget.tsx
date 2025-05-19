@@ -1,5 +1,6 @@
+// filepath: c:\Users\A550191\git\ursa-minor-ascension\src\components\widgets\cloze\ClozeWidget.tsx
 import { useState } from 'react';
-import type { ClozeWidget as ClozeWidgetType } from '../../types';
+import type { ClozeWidget as ClozeWidgetType } from '../../../types';
 
 interface ClozeWidgetProps {
     widget: ClozeWidgetType;

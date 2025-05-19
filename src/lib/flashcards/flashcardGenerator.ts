@@ -1,10 +1,11 @@
-﻿// filepath: c:\Users\A550191\git\ursa-minor-ascension\src\lib\flashcardGenerator.ts
+// filepath: c:\Users\A550191\git\ursa-minor-ascension\src\lib\flashcardGenerator.ts
+// filepath: c:\Users\A550191\git\ursa-minor-ascension\src\lib\flashcardGenerator.ts
 import { AzureOpenAI } from 'openai';
 import { zodResponseFormat } from 'openai/helpers/zod';
 import { v4 as uuidv4 } from 'uuid';
 import { z } from 'zod';
-import type { FlashCard, Page, Series } from '../types/index';
-import type { AzureConfig } from './azure';
+import type { FlashCard, Page, Series } from '../../types/index';
+import type { AzureConfig } from '../azure';
 
 /**
  * Create the OpenAI client for use with Azure OpenAI
@@ -296,6 +297,7 @@ export async function generateFlashCards(
         ...card,
         id: uuidv4(),
         createdAt: new Date().toISOString(),
+        type: 'flashcard' // Add the missing type property
     }));
 }
 

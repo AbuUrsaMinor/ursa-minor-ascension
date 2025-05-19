@@ -1,6 +1,6 @@
 // filepath: c:\Users\A550191\git\ursa-minor-ascension\src\workers\flashCardWorker.js
 // Import the necessary functions and types
-import { estimateFlashCardCount, generateFlashCards } from '../lib/flashcardGenerator';
+import { estimateFlashCardCount, generateFlashCards } from '../lib/flashcards/flashcardGenerator'; // Adjusted import path
 // Note: We don't need to import AzureConfig as it's already in the message from the main thread
 
 console.log('Flash Card Worker loaded');

@@ -1,5 +1,6 @@
+// filepath: c:\Users\A550191\git\ursa-minor-ascension\src\components\FlashCardGenerator.tsx
 import { useCallback, useEffect, useState } from 'react';
-import type { FlashCardGenerationStatus, Series } from '../types/index';
+import type { FlashCardGenerationStatus, Series } from '../../types/index';
 
 const ESTIMATION_TIMEOUT_MS = 10000;
 const MIN_CARD_COUNT = 5;

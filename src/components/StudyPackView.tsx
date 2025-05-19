@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useDomain } from '../context/DomainContext';
-import type { FlashCard, Widget, FlashCardDifficulty as FlashCardDifficultyType } from '../types/index';
-import { FlashCardItemViewer } from './FlashCardItemViewer';
 import type { WidgetCountSummary } from '../components/StudyPackLibrary';
+import { useDomain } from '../context/DomainContext';
+import type { FlashCard, FlashCardDifficulty as FlashCardDifficultyType, Widget } from '../types/index';
+import { FlashCardItemViewer } from './flashcards/FlashCardItemViewer';
 
 interface StudyPackMetadata {
     id: string;
@@ -86,8 +86,8 @@ export function StudyPackView() {
                 } if (!metadataResponse?.ok) {
                     console.error('Failed to load StudyPack metadata from any paths. Tried:', basePaths.join(', '));
                     throw new Error(`Failed to load StudyPack: Not Found`);
-                }                const metadata = await metadataResponse.json();
-                
+                } const metadata = await metadataResponse.json();
+
                 // Now use the successful base path to get the cards
                 const cardsUrl = `${successfulBasePath}/${packId}/cards.json`;
                 console.log('Fetching cards from:', cardsUrl);
@@ -100,14 +100,14 @@ export function StudyPackView() {
 
                 console.log('Successfully loaded cards from:', cardsUrl);
                 const cards = await cardsResponse.json();
-                
+
                 // Try to fetch widgets if available (new format)
                 let widgets = undefined;
                 try {
                     const widgetsUrl = `${successfulBasePath}/${packId}/widgets.json`;
                     console.log('Fetching widgets from:', widgetsUrl);
                     const widgetsResponse = await fetch(widgetsUrl);
-                    
+
                     if (widgetsResponse.ok) {
                         console.log('Successfully loaded widgets from:', widgetsUrl);
                         widgets = await widgetsResponse.json();
@@ -122,14 +122,14 @@ export function StudyPackView() {
                     const referencesUrl = `${successfulBasePath}/${packId}/page-references.json`;
                     console.log('Fetching page references from:', referencesUrl);
                     const referencesResponse = await fetch(referencesUrl);
-                    
+
                     if (referencesResponse.ok) {
                         console.log('Successfully loaded page references from:', referencesUrl);
                         pageReferences = await referencesResponse.json();
                     }
                 } catch (err) {
                     console.warn('No page references found:', err);
-                }                setStudyPack({
+                } setStudyPack({
                     metadata,
                     cards,
                     widgets,
@@ -149,7 +149,7 @@ export function StudyPackView() {
         if (filterDifficulty === 'all') return true;
         return card.difficulty === filterDifficulty;
     }) || [];
-    
+
     // Filter widgets of type 'flashcard' by difficulty
     const filteredWidgets = studyPack?.widgets?.filter(widget => {
         if (widget.type !== 'flashcard') return false; // Only handle flashcard widgets for now
@@ -301,7 +301,7 @@ export function StudyPackView() {
                             onClick={() => setSelectedCardId(card.id === selectedCardId ? null : card.id)}
                         />
                     ))}
-                    
+
                     {/* Widgets of type flashcard */}
                     {filteredWidgets.map((widget) => (
                         <FlashCardItemViewer

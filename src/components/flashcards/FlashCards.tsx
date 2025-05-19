@@ -1,13 +1,14 @@
+// filepath: c:\Users\A550191\git\ursa-minor-ascension\src\components\FlashCards.tsx
 import { useCallback, useEffect, useState } from 'react';
-import { useAzure } from '../context/AzureContext';
-import { useDomain } from '../context/DomainContext';
-import { cancelFlashCardGeneration, startFlashCardGeneration, updateSeriesWithFlashCards } from '../lib/flashcardService';
-import type { FlashCard, FlashCardDifficulty, FlashCardGenerationStatus, Series } from '../types/index';
-import { AnkiExportButton } from './AnkiExportButton';
+import { useAzure } from '../../context/AzureContext';
+import { useDomain } from '../../context/DomainContext';
+import { cancelFlashCardGeneration, startFlashCardGeneration, updateSeriesWithFlashCards } from '../../lib/flashcards/flashcardService';
+import type { FlashCard, FlashCardDifficulty, FlashCardGenerationStatus, Series } from '../../types/index';
+import { AnkiExportButton } from '../AnkiExportButton';
+import { StudyPackExportButton } from '../StudyPackExportButton';
+import { FlashCardItem } from '../widgets/flashcard/FlashCardItem';
 import { FlashCardGenerator } from './FlashCardGenerator';
-import { FlashCardItem } from './FlashCardItem';
 import { FlashCardItemViewer } from './FlashCardItemViewer';
-import { StudyPackExportButton } from './StudyPackExportButton';
 
 interface FlashCardsProps {
     series: Series;

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { deleteSeries, getSeries, saveSeries } from '../lib/storage';
 import type { Series } from '../types';
-import { FlashCards } from './FlashCards';
+import { FlashCards } from './flashcards/FlashCards';
 import { Widgets } from './Widgets';
 
 export function SeriesDetail() {
@@ -144,8 +144,8 @@ export function SeriesDetail() {
                     <button
                         onClick={() => setActiveTab('pages')}
                         className={`py-2 px-4 rounded-md font-medium transition-all ${activeTab === 'pages'
-                                ? 'bg-blue-600 text-white shadow-md'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            ? 'bg-blue-600 text-white shadow-md'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                     >
                         Pages
@@ -153,8 +153,8 @@ export function SeriesDetail() {
                     <button
                         onClick={() => setActiveTab('flashcards')}
                         className={`py-2 px-4 rounded-md font-medium transition-all ${activeTab === 'flashcards'
-                                ? 'bg-blue-600 text-white shadow-md'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            ? 'bg-blue-600 text-white shadow-md'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                     >
                         Flash Cards
@@ -162,8 +162,8 @@ export function SeriesDetail() {
                     <button
                         onClick={() => setActiveTab('widgets')}
                         className={`py-2 px-4 rounded-md font-medium transition-all ${activeTab === 'widgets'
-                                ? 'bg-blue-600 text-white shadow-md'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            ? 'bg-blue-600 text-white shadow-md'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                             }`}
                     >
                         Widgets

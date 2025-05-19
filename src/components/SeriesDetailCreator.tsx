@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useDomain } from '../context/DomainContext';
 import { deleteSeries, getSeries, saveSeries } from '../lib/storage';
 import type { Series } from '../types';
-import { FlashCards } from './FlashCards';
+import { FlashCards } from './flashcards/FlashCards';
 
 export function SeriesDetailCreator() {
     const { seriesId } = useParams<{ seriesId: string }>();
@@ -142,8 +142,8 @@ export function SeriesDetailCreator() {
                     <button
                         onClick={() => setActiveTab('content')}
                         className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'content'
-                                ? 'border-blue-600 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            ? 'border-blue-600 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
                     >
                         Pages
@@ -151,8 +151,8 @@ export function SeriesDetailCreator() {
                     <button
                         onClick={() => setActiveTab('flashcards')}
                         className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'flashcards'
-                                ? 'border-blue-600 text-blue-600'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            ? 'border-blue-600 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
                     >
                         Flash Cards
@@ -190,8 +190,8 @@ export function SeriesDetailCreator() {
                                         onClick={goToPrevPage}
                                         disabled={currentPageIndex === 0}
                                         className={`p-2 rounded-full ${currentPageIndex === 0
-                                                ? 'text-gray-300 cursor-not-allowed'
-                                                : 'text-gray-600 hover:bg-gray-100'
+                                            ? 'text-gray-300 cursor-not-allowed'
+                                            : 'text-gray-600 hover:bg-gray-100'
                                             }`}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -202,8 +202,8 @@ export function SeriesDetailCreator() {
                                         onClick={goToNextPage}
                                         disabled={currentPageIndex === series.pages.length - 1}
                                         className={`p-2 rounded-full ${currentPageIndex === series.pages.length - 1
-                                                ? 'text-gray-300 cursor-not-allowed'
-                                                : 'text-gray-600 hover:bg-gray-100'
+                                            ? 'text-gray-300 cursor-not-allowed'
+                                            : 'text-gray-600 hover:bg-gray-100'
                                             }`}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

@@ -1,5 +1,6 @@
-import type { FlashCard, FlashCardGenerationStatus, Series } from '../types/index';
-import type { AzureConfig } from './azure';
+// filepath: c:\Users\A550191\git\ursa-minor-ascension\src\lib\flashcardWorker.ts
+import type { FlashCard, FlashCardGenerationStatus, Series } from '../../types/index';
+import type { AzureConfig } from '../azure';
 import { estimateFlashCardCount, FlashCardRequest, generateFlashCards } from './flashcardGenerator';
 
 export interface FlashCardWorkerMessage {
@@ -111,5 +112,5 @@ export function initFlashCardWorker() {
     // module approach that's more reliable
 
     // The worker file is already set up in workers/flashCardWorker.js
-    return new URL('../workers/flashCardWorker.js', import.meta.url).href;
+    return new URL('../../workers/flashCardWorker.js', import.meta.url).href;
 }
