@@ -33,8 +33,96 @@ export interface FlashCard extends BaseWidget {
     difficulty: FlashCardDifficulty;
 }
 
+// Cloze deletion widget
+export interface ClozeWidget extends BaseWidget {
+    type: 'cloze';
+    sentence: string;
+    blanks: Array<{ text: string; hint?: string }>;
+
+    context?: string;
+}
+
+// True/False widget
+export interface TrueFalseWidget extends BaseWidget {
+    type: 'truefalse';
+    statements: Array<{ text: string; isTrue: boolean; explanation: string }>;
+
+}
+
+// Matching pairs widget
+export interface MatchingPairsWidget extends BaseWidget {
+    type: 'matching';
+    pairs: Array<{ term: string; definition: string }>;
+
+}
+
+// Ordered sequence widget
+export interface OrderedSequenceWidget extends BaseWidget {
+    type: 'sequence';
+    items: Array<{ text: string; position: number; explanation?: string }>;
+
+    title?: string;
+}
+
+// Timeline builder widget
+export interface TimelineWidget extends BaseWidget {
+    type: 'timeline';
+    events: Array<{ text: string; date: string; position: number }>;
+
+    title?: string;
+}
+
+// Meme widget
+export interface MemeWidget extends BaseWidget {
+    type: 'meme';
+    imageUrl?: string;
+    caption: string;
+    altText?: string;
+}
+
+// Joke or Roast widget
+export interface JokeWidget extends BaseWidget {
+    type: 'joke';
+    text: string;
+    type2?: 'joke' | 'roast'; // Subtype to differentiate between jokes and roasts
+}
+
+// Explain-like-an-XXX widget
+export interface ExplainWidget extends BaseWidget {
+    type: 'explain';
+    style: string; // e.g., "5-year-old", "Skibidi rizz", "gangsta"
+    explanation: string;
+    formalExplanation: string;
+}
+
+// Riddle widget
+export interface RiddleWidget extends BaseWidget {
+    type: 'riddle';
+    question: string;
+    answer: string;
+    hints: string[];
+}
+
+// Odd One Out widget
+export interface OddOneOutWidget extends BaseWidget {
+    type: 'oddoneout';
+    items: Array<{ text: string; isOdd: boolean; explanation: string }>;
+
+}
+
 // Type union for all widget types
-export type Widget = FlashCard; // In the future, add more widget types to this union
+export type Widget =
+    | FlashCard
+    | ClozeWidget
+    | TrueFalseWidget
+    | MatchingPairsWidget
+    | OrderedSequenceWidget
+    | TimelineWidget
+    | MemeWidget
+    | JokeWidget
+    | ExplainWidget
+    | RiddleWidget
+    | OddOneOutWidget; // Union of all widget types
 
 // Status tracking for widget generation
 export interface WidgetGenerationStatus {
@@ -45,6 +133,7 @@ export interface WidgetGenerationStatus {
     estimatedCount?: number;
     message?: string;
     widgetType?: string;
+    widgetTypeCounts?: Record<string, number>; // Count of generated widgets by type
 }
 
 export interface FlashCardGenerationStatus {
@@ -79,4 +168,9 @@ export interface WidgetCount {
 
 export interface StudyPackConfiguration {
     widgets: WidgetCount[];
+    preferences?: {
+        difficulty?: 'easy' | 'medium' | 'hard' | 'mixed';
+        style?: string;
+        includeHumor?: boolean;
+    };
 }

@@ -3,16 +3,17 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { deleteSeries, getSeries, saveSeries } from '../lib/storage';
 import type { Series } from '../types';
 import { FlashCards } from './FlashCards';
+import { Widgets } from './Widgets';
 
 export function SeriesDetail() {
     const { seriesId } = useParams<{ seriesId: string }>();
     const navigate = useNavigate();
 
     const [series, setSeries] = useState<Series | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true); const [error, setError] = useState<string | null>(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [currentPageIndex, setCurrentPageIndex] = useState(0);
+    const [activeTab, setActiveTab] = useState<'pages' | 'flashcards' | 'widgets'>('pages');
 
     // Load series data
     useEffect(() => {
@@ -137,86 +138,139 @@ export function SeriesDetail() {
                 </div>
             </div>
 
-            {/* Current Page */}
-            <div className="bg-white p-6 rounded-lg shadow-md">
-                <div className="sm:flex sm:gap-8">
-                    {/* Image */}
-                    <div className="sm:w-1/2 mb-6 sm:mb-0">
-                        <div className="bg-gray-100 rounded-md overflow-hidden">
-                            <img
-                                src={URL.createObjectURL(currentPage.imageBlob)}
-                                alt={`Page ${currentPageIndex + 1}`}
-                                className="w-full object-contain"
-                                onLoad={(e) => {
-                                    // Clean up blob URL to prevent memory leaks
-                                    const target = e.target as HTMLImageElement;
-                                    setTimeout(() => {
-                                        if (target.src.startsWith('blob:')) {
-                                            URL.revokeObjectURL(target.src);
-                                        }
-                                    }, 1000);
-                                }}
-                            />
-                        </div>
-                    </div>
+            {/* Tabs Navigation */}
+            <div className="mb-4">
+                <div className="flex space-x-2">
+                    <button
+                        onClick={() => setActiveTab('pages')}
+                        className={`py-2 px-4 rounded-md font-medium transition-all ${activeTab === 'pages'
+                                ? 'bg-blue-600 text-white shadow-md'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                    >
+                        Pages
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('flashcards')}
+                        className={`py-2 px-4 rounded-md font-medium transition-all ${activeTab === 'flashcards'
+                                ? 'bg-blue-600 text-white shadow-md'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                    >
+                        Flash Cards
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('widgets')}
+                        className={`py-2 px-4 rounded-md font-medium transition-all ${activeTab === 'widgets'
+                                ? 'bg-blue-600 text-white shadow-md'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                    >
+                        Widgets
+                    </button>
+                </div>
+            </div>
 
-                    {/* Text Content */}
-                    <div className="sm:w-1/2">
-                        <h3 className="text-lg font-medium mb-4">Text Content</h3>                        <div className="bg-gray-50 p-4 rounded-md max-h-96 overflow-y-auto">
-                            {currentPage.text ? (
-                                <div dangerouslySetInnerHTML={{ __html: currentPage.text }} />
-                            ) : (
-                                <em>No text content available</em>
+            {/* Current Page Content */}
+            <div className="bg-white p-6 rounded-lg shadow-md">
+                {activeTab === 'pages' && (
+                    <div className="sm:flex sm:gap-8">
+                        {/* Image */}
+                        <div className="sm:w-1/2 mb-6 sm:mb-0">
+                            <div className="bg-gray-100 rounded-md overflow-hidden">
+                                <img
+                                    src={URL.createObjectURL(currentPage.imageBlob)}
+                                    alt={`Page ${currentPageIndex + 1}`}
+                                    className="w-full object-contain"
+                                    onLoad={(e) => {
+                                        // Clean up blob URL to prevent memory leaks
+                                        const target = e.target as HTMLImageElement;
+                                        setTimeout(() => {
+                                            if (target.src.startsWith('blob:')) {
+                                                URL.revokeObjectURL(target.src);
+                                            }
+                                        }, 1000);
+                                    }}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Text Content */}
+                        <div className="sm:w-1/2">
+                            <h3 className="text-lg font-medium mb-4">Text Content</h3>
+                            <div className="bg-gray-50 p-4 rounded-md max-h-96 overflow-y-auto">
+                                {currentPage.text ? (
+                                    <div dangerouslySetInnerHTML={{ __html: currentPage.text }} />
+                                ) : (
+                                    <em>No text content available</em>
+                                )}
+                            </div>
+
+                            {/* Image Descriptions */}
+                            {currentPage.imageDescriptions && currentPage.imageDescriptions.length > 0 && (
+                                <div className="mt-6">
+                                    <h3 className="text-lg font-medium mb-2">Image Descriptions</h3>
+                                    <ul className="bg-gray-50 p-4 rounded-md text-sm space-y-2">
+                                        {currentPage.imageDescriptions.map((desc, i) => (
+                                            <li key={i}>{desc}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {/* Metadata */}
+                            {Object.keys(currentPage.meta).length > 0 && (
+                                <div className="mt-6">
+                                    <h3 className="text-lg font-medium mb-2">Metadata</h3>
+                                    <dl className="bg-gray-50 p-4 rounded-md grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                                        {Object.entries(currentPage.meta).map(([key, value]) => (
+                                            value != null && key !== 'figures' && (
+                                                <div key={key} className="col-span-2 sm:col-span-1">
+                                                    <dt className="font-medium">{key}:</dt>
+                                                    <dd>{String(value)}</dd>
+                                                </div>
+                                            )
+                                        ))}
+                                    </dl>
+                                </div>
                             )}
                         </div>
-
-                        {/* Image Descriptions */}
-                        {currentPage.imageDescriptions && currentPage.imageDescriptions.length > 0 && (
-                            <div className="mt-6">
-                                <h3 className="text-lg font-medium mb-2">Image Descriptions</h3>
-                                <ul className="bg-gray-50 p-4 rounded-md text-sm space-y-2">
-                                    {currentPage.imageDescriptions.map((desc, i) => (
-                                        <li key={i}>{desc}</li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
-
-                        {/* Metadata */}
-                        {Object.keys(currentPage.meta).length > 0 && (
-                            <div className="mt-6">
-                                <h3 className="text-lg font-medium mb-2">Metadata</h3>
-                                <dl className="bg-gray-50 p-4 rounded-md grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                                    {Object.entries(currentPage.meta).map(([key, value]) => (
-                                        value != null && key !== 'figures' && (
-                                            <div key={key} className="col-span-2 sm:col-span-1">
-                                                <dt className="font-medium">{key}:</dt>
-                                                <dd>{String(value)}</dd>
-                                            </div>
-                                        )
-                                    ))}
-                                </dl>
-                            </div>
-                        )}
                     </div>
-                </div>
-            </div>            {/* Flash Cards Section */}
-            <div className="mt-12">
-                <div className="border-t border-gray-200 pt-8">
-                    <FlashCards
-                        series={series}
-                        onSeriesUpdate={(updatedSeries) => {
-                            // Update the series in state
-                            setSeries(updatedSeries);
+                )}
 
-                            // Save changes to database
-                            saveSeries(updatedSeries).catch(err => {
-                                console.error('Failed to save series updates:', err);
-                                setError('Failed to update series');
-                            });
-                        }}
-                    />
-                </div>
+                {activeTab === 'flashcards' && (
+                    <div className="mt-4">
+                        <FlashCards
+                            series={series}
+                            onSeriesUpdate={(updatedSeries) => {
+                                // Update the series in state
+                                setSeries(updatedSeries);
+
+                                // Save changes to database
+                                saveSeries(updatedSeries).catch(err => {
+                                    console.error('Failed to save series updates:', err);
+                                    setError('Failed to update series');
+                                });
+                            }}
+                        />
+                    </div>
+                )}                {activeTab === 'widgets' && (
+                    <div className="mt-4">
+                        <Widgets
+                            series={series}
+                            onSeriesUpdate={(updatedSeries) => {
+                                // Update the series in state
+                                setSeries(updatedSeries);
+
+                                // Save changes to database
+                                saveSeries(updatedSeries).catch(err => {
+                                    console.error('Failed to save series updates:', err);
+                                    setError('Failed to update series');
+                                });
+                            }}
+                        />
+                    </div>
+                )}
             </div>
 
             <div className="mt-8">
