@@ -1,10 +1,18 @@
 import type { Series, Widget, WidgetGenerationStatus } from '../types';
 import type { AzureConfig } from './azure';
 import { getSeries, saveSeries } from './storage';
+import type { WidgetGenerationRequest } from './widgetGenerator';rt type { Series, Widget, WidgetGenerationStatus } from '../types';
+import type { AzureConfig } from './azure';
+import { getSeries, saveSeries } from './storage';
 import type { WidgetGenerationRequest } from './widgetGenerator';
 
 // Web Worker for widget generation
 let widgetWorker: Worker | null = null;
+
+// Current status of widget generation
+const defaultWidgetStatus: WidgetGenerationStatus = {
+    status: 'idle'
+};
 
 // Callback for status updates
 let statusCallback: ((status: WidgetGenerationStatus) => void) | null = null;
@@ -147,10 +155,7 @@ async function findSeriesForWidget(widget: Widget): Promise<string | null> {
     const pageId = widget.sourcePages[0];
 
     // Find the series that contains this page
-    // Import and use the getAllSeries function from storage
-    const { getAllSeries } = await import('./storage');
     const allSeries = await getAllSeries();
-
     for (const series of allSeries) {
         if (series.pages.some(page => page.id === pageId)) {
             return series.id;
@@ -166,4 +171,20 @@ async function findSeriesForWidget(widget: Widget): Promise<string | null> {
 export async function updateSeriesWithWidgets(series: Series): Promise<void> {
     // Simply save the updated series to storage
     await saveSeries(series);
+}
+
+/**
+ * Get all series from storage
+ */
+async function getAllSeries(): Promise<Series[]> {
+    try {
+        // This is a placeholder - implement based on your actual storage mechanism
+        // For now, we'll return an empty array which will prevent errors but
+        // will not actually find the associated series
+        console.warn('getAllSeries function not fully implemented');
+        return [];
+    } catch (error) {
+        console.error('Error loading series:', error);
+        return [];
+    }
 }

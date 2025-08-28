@@ -3,18 +3,15 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useDomain } from '../context/DomainContext';
 import { getSeries } from '../lib/storage';
 import type { Series } from '../types';
-import { FlashCards } from './flashcards/FlashCards';
+import { Widgets } from './Widgets';
 
 export function SeriesDetailViewer() {
     const { seriesId } = useParams<{ seriesId: string }>();
     const navigate = useNavigate();
-    const { setDomain } = useDomain();
-
-    const [series, setSeries] = useState<Series | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const { setDomain } = useDomain();    const [series, setSeries] = useState<Series | null>(null); const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [currentPageIndex, setCurrentPageIndex] = useState(0);
-    const [activeTab, setActiveTab] = useState<'content' | 'flashcards'>('flashcards');
+    const [activeTab, setActiveTab] = useState<'content' | 'widgets'>('widgets');
 
     // Set domain to viewer when this component is mounted
     useEffect(() => {
@@ -136,9 +133,17 @@ export function SeriesDetailViewer() {
                         className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'flashcards'
                             ? 'border-green-600 text-green-600'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            }`}                    >
+                        Flash Cards
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('widgets')}
+                        className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'widgets'
+                            ? 'border-green-600 text-green-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
                     >
-                        Flash Cards
+                        Widgets
                     </button>
                     <button
                         onClick={() => setActiveTab('content')}
@@ -150,11 +155,18 @@ export function SeriesDetailViewer() {
                         Reference Materials
                     </button>
                 </nav>
-            </div>
-
-            {/* Flashcards tab */}
+            </div>            {/* Flashcards tab */}
             {activeTab === 'flashcards' && (
                 <FlashCards series={series} onSeriesUpdate={(updatedSeries) => setSeries(updatedSeries)} readOnly={true} />
+            )}
+
+            {/* Widgets tab */}
+            {activeTab === 'widgets' && (
+                <Widgets
+                    series={series}
+                    onSeriesUpdate={(updatedSeries) => setSeries(updatedSeries)}
+                    readOnly={true}
+                />
             )}
 
             {/* Content tab */}

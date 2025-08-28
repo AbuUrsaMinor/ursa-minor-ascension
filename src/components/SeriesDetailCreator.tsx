@@ -3,19 +3,18 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useDomain } from '../context/DomainContext';
 import { deleteSeries, getSeries, saveSeries } from '../lib/storage';
 import type { Series } from '../types';
-import { FlashCards } from './flashcards/FlashCards';
+import { Widgets } from './Widgets';
 
 export function SeriesDetailCreator() {
     const { seriesId } = useParams<{ seriesId: string }>();
     const navigate = useNavigate();
     const { setDomain } = useDomain();
 
-    const [series, setSeries] = useState<Series | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [series, setSeries] = useState<Series | null>(null); const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [currentPageIndex, setCurrentPageIndex] = useState(0);
-    const [activeTab, setActiveTab] = useState<'content' | 'flashcards'>('content');
+    const [activeTab, setActiveTab] = useState<'content' | 'widgets'>('content');
 
     // Set domain to creator when this component is mounted
     useEffect(() => {
@@ -138,8 +137,7 @@ export function SeriesDetailCreator() {
 
             {/* Tab navigation */}
             <div className="border-b border-gray-200 mb-6">
-                <nav className="flex space-x-8">
-                    <button
+                <nav className="flex space-x-8">                    <button
                         onClick={() => setActiveTab('content')}
                         className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'content'
                             ? 'border-blue-600 text-blue-600'
@@ -149,13 +147,13 @@ export function SeriesDetailCreator() {
                         Pages
                     </button>
                     <button
-                        onClick={() => setActiveTab('flashcards')}
-                        className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'flashcards'
+                        onClick={() => setActiveTab('widgets')}
+                        className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'widgets'
                             ? 'border-blue-600 text-blue-600'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                             }`}
                     >
-                        Flash Cards
+                        Widgets
                     </button>
                 </nav>
             </div>
@@ -236,15 +234,17 @@ export function SeriesDetailCreator() {
                                         </ul>
                                     </div>
                                 )}
-                            </div>
-                        </div>
+                            </div>                        </div>
                     </div>
                 </div>
             )}
 
-            {/* Flashcards tab */}
-            {activeTab === 'flashcards' && (
-                <FlashCards series={series} onSeriesUpdate={handleSeriesUpdate} />
+            {/* Widgets tab */}
+            {activeTab === 'widgets' && (
+                <Widgets
+                    series={series}
+                    onSeriesUpdate={handleSeriesUpdate}
+                />
             )}
 
             {/* Delete confirmation dialog */}

@@ -1,6 +1,6 @@
-import { Series, Widget, WidgetGenerationStatus } from '../types';
-import { AzureConfig } from './azure';
-import { generateWidgets, WidgetGenerationRequest } from './widgetGenerator';
+import type { Series, Widget, WidgetGenerationStatus } from '../types/index';
+import type { AzureConfig } from './azure';
+import { generateWidgets, type WidgetGenerationRequest } from './widgetGenerator';
 
 // Messages from the main thread to the worker
 type MainToWorkerMessage = {
@@ -98,6 +98,7 @@ export function initializeWidgetWorker() {
 }
 
 // Initialize the worker if we're in a worker context
-if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
+// @ts-ignore - WorkerGlobalScope exists in worker environments
+if (typeof self !== 'undefined' && typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
     initializeWidgetWorker();
 }

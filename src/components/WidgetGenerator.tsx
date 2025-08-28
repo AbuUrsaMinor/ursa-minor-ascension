@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAzure } from '../context/AzureContext';
-import { WidgetGenerationRequest } from '../lib/widgetGenerator';
+import type { WidgetGenerationRequest } from '../lib/widgetGenerator';
 import { cancelWidgetGeneration, startWidgetGeneration } from '../lib/widgetService';
 import type { Series, WidgetGenerationStatus } from '../types';
 
@@ -327,8 +327,8 @@ export function WidgetGenerator({ series, onComplete }: WidgetGeneratorProps) {
                     onClick={handleGenerate}
                     disabled={generating || totalWidgets === 0 || !config}
                     className={`px-4 py-2 rounded ${generating || totalWidgets === 0 || !config
-                            ? 'bg-blue-300 cursor-not-allowed'
-                            : 'bg-blue-600 hover:bg-blue-700 text-white'
+                        ? 'bg-blue-300 cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-700 text-white'
                         }`}
                 >
                     Generate Widgets

@@ -177,7 +177,9 @@ async function generateWidgetsByType(
         const flashcardRequest: FlashCardRequest = {
             count: count,
             difficulty: preferences?.difficulty || 'mixed'
-        };        // Use existing flashcard generator
+        };
+
+        // Use existing flashcard generator
         const flashcards = await generateFlashCards(
             series,
             config,
@@ -197,7 +199,8 @@ async function generateWidgetsByType(
         case 'cloze':
             return generateClozeWidgets(series, client, count, preferences);
         case 'truefalse':
-            return generateTrueFalseWidgets(series, client, count, preferences); case 'matching':
+            return generateTrueFalseWidgets(series, client, count, preferences);
+        case 'matching':
             return generateMatchingWidgets(series, client, count, preferences);
         case 'sequence':
             return generateSequenceWidgets(series, client, count, preferences);

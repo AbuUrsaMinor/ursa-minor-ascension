@@ -60,11 +60,11 @@ export function MemeWidget({ widget, onShare }: MemeWidgetProps) {
                             <div className="w-full h-48 bg-gray-300 flex items-center justify-center">
                                 <span className="text-gray-500">Image unavailable</span>
                             </div>
-                        )}
-
-                        {/* Caption overlay */}
-                        <div className="absolute bottom-0 left-0 right-0 p-3 bg-black bg-opacity-70 text-white font-bold text-center text-lg uppercase">
-                            {widget.caption}
+                        )}                        {/* Caption overlay */}
+                        <div className="absolute bottom-0 left-0 right-0 p-3 bg-black bg-opacity-70">
+                            <p className="text-center text-lg meme-text">
+                                {widget.caption}
+                            </p>
                         </div>
                     </div>
 
